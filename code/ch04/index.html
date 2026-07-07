@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4章 生活管理實戰 — 互動練習</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --panel2: #172033;
+    --ink: #e2e8f0; --muted: #94a3b8; --line: #334155;
+    --chat: #38bdf8; --cowork: #a78bfa; --code: #34d399;
+    --ok: #22c55e; --bad: #f87171;
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Segoe UI', system-ui, "Microsoft JhengHei", sans-serif;
+    line-height: 1.7; padding: 24px 16px 80px;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: .02em; }
+  header .sub { color: var(--muted); margin-top: 4px; font-size: .9rem; }
+  .book { color: var(--cowork); }
+
+  section { margin-top: 28px; }
+  h2 { font-size: 1.1rem; margin-bottom: 12px; border-left: 4px solid var(--cowork);
+       padding-left: 10px; }
+
+  /* 三個範例卡 */
+  .modes { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .mode { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+          padding: 14px; }
+  .mode h3 { font-size: 1rem; margin-bottom: 4px; }
+  .mode.chat h3 { color: var(--chat); }
+  .mode.cowork h3 { color: var(--cowork); }
+  .mode.code h3 { color: var(--code); }
+  .mode p { font-size: .82rem; color: var(--muted); }
+  .mode .tag { font-size: .72rem; color: var(--ink); opacity: .85; }
+
+  details { background: var(--panel2); border: 1px solid var(--line);
+            border-radius: 10px; padding: 10px 14px; margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .82rem; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  th { background: rgba(167,139,250,.12); }
+  .overflow { overflow-x: auto; }
+
+  /* 練習 */
+  #quiz .card { background: var(--panel); border: 1px solid var(--line);
+                border-radius: 12px; padding: 18px; }
+  .progress { height: 8px; background: var(--panel2); border-radius: 99px;
+              overflow: hidden; margin-bottom: 14px; }
+  .progress > i { display: block; height: 100%; width: 0;
+                  background: linear-gradient(90deg,var(--chat),var(--cowork)); transition: width .3s; }
+  .qmeta { display: flex; justify-content: space-between; font-size: .8rem;
+           color: var(--muted); margin-bottom: 8px; }
+  .scenario { font-size: 1.05rem; font-weight: 600; margin: 6px 0 16px;
+              background: var(--panel2); border-radius: 8px; padding: 14px; }
+  .scenario .quote { color: var(--muted); font-weight: 400; font-size: .85rem; display:block; margin-bottom:6px;}
+  .choices { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .choice { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line);
+            background: transparent; color: var(--ink); font-size: .92rem; font-weight: 600;
+            cursor: pointer; transition: all .15s; text-align: left; line-height: 1.5; }
+  .choice small { display:block; font-weight:400; font-size:.72rem; color:var(--muted); margin-top:2px;}
+  .choice:hover:not(:disabled) { border-color: var(--cowork); background: rgba(167,139,250,.08); }
+  .choice:disabled { cursor: default; opacity: .55; }
+  .choice.correct { border-color: var(--ok); background: rgba(34,197,94,.16); opacity:1; }
+  .choice.wrong { border-color: var(--bad); background: rgba(248,113,113,.16); opacity:1; }
+
+  .feedback { margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+              font-size: .9rem; display: none; }
+  .feedback.show { display: block; }
+  .feedback.good { background: rgba(34,197,94,.12); border: 1px solid var(--ok); }
+  .feedback.bad  { background: rgba(248,113,113,.12); border: 1px solid var(--bad); }
+  .feedback b.ans { color: var(--cowork); }
+
+  .nav { margin-top: 16px; text-align: right; }
+  button.next { background: var(--cowork); color: #1a1030; border: none; font-weight: 700;
+                padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: .95rem; }
+  button.next:disabled { opacity: .4; cursor: default; }
+
+  /* 結果 */
+  #result { display: none; text-align: center; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 12px; padding: 30px 18px; }
+  #result.show { display: block; }
+  #result .score { font-size: 2.4rem; font-weight: 800; color: var(--cowork); }
+  #result .msg { color: var(--muted); margin: 8px 0 18px; }
+  button.retry { background: transparent; color: var(--ink); border: 1px solid var(--line);
+                 padding: 9px 18px; border-radius: 8px; cursor: pointer; }
+
+  .demo { background: var(--panel2); border: 1px dashed var(--cowork); border-radius: 12px;
+          padding: 16px; margin-top: 14px; }
+  .demo code { background: #0b1220; padding: 2px 7px; border-radius: 5px; color: #e9d5ff;
+               font-size: .85rem; white-space: pre-wrap; display: inline-block; }
+  .demo pre { background: #0b1220; padding: 12px 14px; border-radius: 8px; margin: 8px 0;
+              overflow-x: auto; }
+  .demo pre code { padding: 0; }
+  .demo .step { margin: 8px 0; }
+
+  @media (max-width: 640px) {
+    .modes { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>第 4 章 · 生活管理實戰</h1>
+    <div class="sub">互動練習｜出自《<span class="book">Claude Cowork：31 個超好用範例實作</span>》· 胡嘉璽著</div>
+  </header>
+
+  <!-- ── 重點回顧 ── -->
+  <section>
+    <h2>① 先回顧：三個生活管理範例</h2>
+    <div class="modes">
+      <div class="mode chat">
+        <h3>範例 4-1 · 整理下載資料夾</h3>
+        <p class="tag">30 個雜亂檔案 → 5 個分類子資料夾</p>
+        <p>核心工具：<b>Desktop Commander</b> Connector，負責 create_directory、move_file 等檔案系統操作。</p>
+      </div>
+      <div class="mode cowork">
+        <h3>範例 4-2 · 旅行照片整理</h3>
+        <p class="tag">2,748 張照片 → 日期-國家-城市子資料夾</p>
+        <p>核心工具：Desktop Commander + <b>Python 讀 EXIF/GPS</b>，靠座標反查城市，比檔名判斷更準。</p>
+      </div>
+      <div class="mode code">
+        <h3>範例 4-3 · 家庭費用報告</h3>
+        <p class="tag">28 筆收據 CSV → 3 工作表 Excel</p>
+        <p>核心工具：Desktop Commander + <b>xlsx Skill</b>（openpyxl 建表、LibreOffice 驗證公式）。</p>
+      </div>
+    </div>
+
+    <details>
+      <summary>展開書中「4-4 本章小結」四大重點</summary>
+      <div class="overflow">
+      <table>
+        <tr><th>重點</th><th>內容</th></tr>
+        <tr><td>任務指令的撰寫技巧</td><td>要具體、有條理、包含期望的輸出格式。不要只說「幫我整理」，而是說明分類規則、命名格式、要幾個工作表。指令越明確，結果越符合預期。</td></tr>
+        <tr><td>Connector 和 Skill 的自動選擇</td><td>Claude 會根據任務需求自動載入對應工具：操作檔案系統用 Desktop Commander，建立 Excel 用 xlsx Skill，不需要使用者手動指定。</td></tr>
+        <tr><td>Progress 面板是任務儀表板</td><td>每個任務都有清楚的步驟分解和進度顯示。完成的步驟打綠色勾勾，正在執行的步驟顯示藍色標記，隨時可知道 Claude 做到哪了。</td></tr>
+        <tr><td>權限機制是安全護欄</td><td>Claude 第一次使用某個工具時會請求權限。「Allow for this task」是最方便的選項，同一個任務中的同類操作只需要授權一次。</td></tr>
+      </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ── 練習 ── -->
+  <section>
+    <h2>② 動手練習：這個需求該怎麼委派？</h2>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+      讀情境，點你判斷的正確做法，會立刻告訴你對不對＋為什麼。共 10 題。
+    </p>
+
+    <div id="quiz">
+      <div class="card">
+        <div class="progress"><i id="bar"></i></div>
+        <div class="qmeta"><span id="qnum">第 1 / 10 題</span><span id="score">得分 0</span></div>
+        <div class="scenario" id="scenario"></div>
+        <div class="choices" id="choices">
+          <button class="choice" data-key=""></button>
+          <button class="choice" data-key=""></button>
+          <button class="choice" data-key=""></button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="nav"><button class="next" id="next" disabled>下一題 →</button></div>
+      </div>
+
+      <div id="result">
+        <div class="score" id="finalScore"></div>
+        <div class="msg" id="finalMsg"></div>
+        <button class="retry" id="retry">再練一次</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 真實 demo ── -->
+  <section>
+    <h2>③ 接回真實操作：到 Cowork 做一次 demo</h2>
+    <div class="demo">
+      <p>光做題不夠，打開 <b>Claude Desktop</b> → 切到 <b class="book">Cowork</b> 分頁，跑一次書中 4-1 節「整理下載資料夾」的原始任務：</p>
+      <div class="step">1️⃣ 先準備測試環境（或直接對你真正的「下載」資料夾操作）：在桌面建一個「下載測試」資料夾，放幾十個雜亂檔案（PDF、圖片、影片、壓縮檔都行）。</div>
+      <div class="step">2️⃣ 在任務輸入區貼上書中原始指令：</div>
+      <pre><code>請幫我整理桌面上的「下載測試」資料夾。這個資料夾裡有 30 個雜亂的檔
+案，包含 PDF、圖片、影片、音樂、壓縮檔、安裝檔、文件等各種類型。請
+按照以下規則分類：
+1. 依檔案類型建立子資料夾（文件、圖片、影片音樂、壓縮檔、安裝檔、其他）
+2. 將每個檔案移動到對應的子資料夾
+3. 完成後列出整理結果的樹狀結構
+資料夾路徑：~/Desktop/下載測試</code></pre>
+      <div class="step">3️⃣ 按 <b>Let's go →</b>，觀察右側 <b>Progress</b> 面板展開的步驟，以及 <b>Context</b> 面板自動載入的 <b>Desktop Commander</b> Connector。第一次要求建立資料夾時會跳出權限對話框，選 <b>Allow for this task</b> 一次授權整個任務。</div>
+      <div class="step">4️⃣ 完成後打開 Finder／檔案總管，對照 Claude 回報的樹狀結構，確認 30 個檔案是否都歸位到對的子資料夾，並體會它連 <code>.CR2</code> 這種冷門格式都能判斷「本質上是圖片」的分類能力。</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:8px">⚠️ Cowork 目前是研究預覽版（research preview），第一次跑會請你確認檔案存取權限，放心它每步都會問過你。</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// 題庫：情境與判準取自書中 4-1～4-4 節的實際範例
+const QUESTIONS = [
+  {
+    q: '你想請 Cowork 整理雜亂的下載資料夾，書中示範哪種指令寫法才會得到符合預期的結果？',
+    choices: [
+      { k: 'a', t: '「幫我整理下載資料夾」' },
+      { k: 'b', t: '「請幫我整理...這個資料夾有 30 個雜亂檔案...請按照以下規則分類：1. 依檔案類型建立子資料夾（文件、圖片…）2. 將每個檔案移動到對應子資料夾 3. 完成後列出整理結果的樹狀結構」' },
+      { k: 'c', t: '「你決定怎麼整理都可以，隨便你」' },
+    ],
+    answer: 'b',
+    why: '書中強調指令要具體說明分類規則。如果只說「幫我整理」，Claude 也會自己決定分類方式，但結果可能和你預期不同。',
+  },
+  {
+    q: '任務是「把桌面下載資料夾的檔案按類型分類整理」，Cowork 會自動載入哪個工具來操作檔案系統？',
+    choices: [
+      { k: 'a', t: 'Google Drive Connector' },
+      { k: 'b', t: 'Desktop Commander（操作本機檔案系統的 Connector）' },
+      { k: 'c', t: 'Gmail Connector' },
+    ],
+    answer: 'b',
+    why: '4-1-3 節示範，Claude 判斷任務需要操作電腦上的檔案系統，因此自動載入 Desktop Commander 這個 Connector，Context 面板會顯示它已出現在列表中。',
+  },
+  {
+    q: '任務是「從 CSV 收據建立完整的 Excel 費用報告，包含多工作表與 SUMIF 公式」，Cowork 除了 Desktop Commander 之外還會自動載入什麼？',
+    choices: [
+      { k: 'a', t: 'mind-map Skill' },
+      { k: 'b', t: 'xlsx Skill（Built-in Skill，專門處理 Excel 檔案的建立和編輯）' },
+      { k: 'c', t: 'pptx Skill' },
+    ],
+    answer: 'b',
+    why: '4-3-3 節：Claude 看到要建立 .xlsx 檔案，就自動載入了對應的 xlsx Skill，不需要使用者手動指定要用什麼工具。',
+  },
+  {
+    q: '任務會建立 5 個子資料夾、移動 30 個檔案，Claude 對每個 create_directory / move_file 都跳出權限請求，這時該怎麼授權比較有效率？',
+    choices: [
+      { k: 'a', t: '每次都按 Allow once，一筆一筆手動確認' },
+      { k: 'b', t: '按 Allow for this task，一次授權整個任務中的同類操作' },
+      { k: 'c', t: '直接 Deny，全部拒絕' },
+    ],
+    answer: 'b',
+    why: '4-1-4 節提到：因為需要建立多個資料夾、移動多個檔案，每次都按 Allow once 會很累，選擇 Allow for this task 可以一次授權整個任務中的同類操作。',
+  },
+  {
+    q: '要把近三千張出國旅行照片依「日期-國家-城市」分類，檔名只有 IMG_日期.jpg，書中的 Cowork 怎麼做分類才更準確？',
+    choices: [
+      { k: 'a', t: '只靠檔名裡的日期字串猜測地點' },
+      { k: 'b', t: '讀取照片的 EXIF 資訊取得 GPS 座標，反查城市名稱' },
+      { k: 'c', t: '請使用者自己一張張手動標記城市' },
+    ],
+    answer: 'b',
+    why: '4-2-2／4-2-3 節：Claude 發現照片中嵌入了 GPS 座標，就自動選擇用座標反查城市名稱的方式來分類，比單純靠檔名判斷準確得多。',
+  },
+  {
+    q: 'Excel 報告要求用 SUM、COUNTIF、SUMIF 等「公式」而非寫死的數字，Cowork 完成後多做了哪一步來確保公式正確？',
+    choices: [
+      { k: 'a', t: '寫完公式直接交差，不驗證' },
+      { k: 'b', t: '用 LibreOffice 在 VM 中重新打開試算表，實際計算一次公式，確認結果正確再傳回' },
+      { k: 'c', t: '用肉眼看數字大概合理就好' },
+    ],
+    answer: 'b',
+    why: '4-3-4 節第 4 步：Claude 不只是寫入公式就交差，還會用 LibreOffice 實際打開計算一次，驗證所有公式的結果都正確，回報中會出現「公式全部驗證通過，零錯誤！」。',
+  },
+  {
+    q: '任務要建立一個 Excel 檔案存到你的桌面，但 Cowork 的任務實際上是在哪裡執行的？',
+    choices: [
+      { k: 'a', t: '直接在你的本機桌面上執行' },
+      { k: 'b', t: '在雲端 VM（虛擬機）中執行，透過 Desktop Commander 在桌面與 VM 間讀取／寫回檔案' },
+      { k: 'c', t: '在你的手機上執行' },
+    ],
+    answer: 'b',
+    why: '4-3-5 節：Cowork 的任務是在 VM 中執行的，檔案在你桌面上，所以流程是 Desktop Commander 讀取桌面 CSV → VM 內用 Python + openpyxl 建立 Excel → 再寫回桌面；Excel 是二進位檔，需要 base64 編碼後才能透過 Desktop Commander 傳輸。',
+  },
+  {
+    q: 'Claude 把 .CR2 這種 Canon RAW 相機檔案歸類到「圖片」資料夾而不是「其他」，這背後代表什麼？',
+    choices: [
+      { k: 'a', t: '隨機分類，沒有邏輯' },
+      { k: 'b', t: 'Claude 會附上分類邏輯說明：CR2 是 Canon 相機的 RAW 原始影像格式，本質上仍是圖片，這種判斷力手動分類時不容易做到' },
+      { k: 'c', t: '使用者事先在指令中明確指定 CR2 要放圖片資料夾' },
+    ],
+    answer: 'b',
+    why: '4-1-5 節：Claude 完成後貼心附上分類邏輯說明，指出 CR2 本質上仍是圖片，所以歸在圖片資料夾——這種判斷手動分類時不容易做到。',
+  },
+  {
+    q: '要請 Cowork 把旅行照片分類，書中 4-2-2 節指出，撰寫指令時要清楚說明哪三件事？',
+    choices: [
+      { k: 'a', t: '檔案大小、修改時間、副檔名' },
+      { k: 'b', t: '資料來源（哪個資料夾）、分類規則（按日期和國家城市）、輸出格式（資料夾命名方式）' },
+      { k: 'c', t: '使用者姓名、任務優先級、預估完成時間' },
+    ],
+    answer: 'b',
+    why: '4-2-2 節明確寫道：「指令要清楚說明三件事：資料來源（哪個資料夾）、分類規則（按日期和國家城市）、輸出格式（資料夾命名方式）」。',
+  },
+  {
+    q: '任務執行中，你想知道 Claude 目前做到哪一步了、還有幾步沒做，該看哪裡？',
+    choices: [
+      { k: 'a', t: '右側的 Progress 面板：完成的步驟打綠色勾勾，正在執行的步驟顯示藍色標記' },
+      { k: 'b', t: '只能等任務全部完成後才知道' },
+      { k: 'c', t: '需要另外開一個終端機查看 log' },
+    ],
+    answer: 'a',
+    why: '4-4 節本章小結：「Progress 面板是你的任務儀表板，每個任務都有清楚的步驟分解和進度顯示…這讓你隨時知道 Claude 做到哪了」。',
+  },
+];
+
+let idx = 0, score = 0, answered = false;
+
+const $ = id => document.getElementById(id);
+const scenarioEl = $('scenario'), feedbackEl = $('feedback');
+let choiceButtons = [...document.querySelectorAll('#choices .choice')];
+
+function render() {
+  answered = false;
+  const item = QUESTIONS[idx];
+  scenarioEl.innerHTML = '<span class="quote">情境：</span>' + item.q;
+  $('qnum').textContent = `第 ${idx + 1} / ${QUESTIONS.length} 題`;
+  $('score').textContent = `得分 ${score}`;
+  $('bar').style.width = (idx / QUESTIONS.length * 100) + '%';
+  feedbackEl.className = 'feedback';
+  feedbackEl.innerHTML = '';
+  $('next').disabled = true;
+  choiceButtons.forEach((btn, i) => {
+    const c = item.choices[i];
+    btn.dataset.key = c.k;
+    btn.textContent = c.t;
+    btn.disabled = false;
+    btn.className = 'choice';
+  });
+}
+
+choiceButtons.forEach(btn => btn.addEventListener('click', () => {
+  if (answered) return;
+  answered = true;
+  const pick = btn.dataset.key;
+  const item = QUESTIONS[idx];
+  const correct = pick === item.answer;
+  if (correct) score++;
+  const correctText = item.choices.find(c => c.k === item.answer).t;
+  choiceButtons.forEach(x => {
+    x.disabled = true;
+    if (x.dataset.key === item.answer) x.classList.add('correct');
+    else if (x.dataset.key === pick) x.classList.add('wrong');
+  });
+  feedbackEl.className = 'feedback show ' + (correct ? 'good' : 'bad');
+  feedbackEl.innerHTML =
+    (correct ? '✅ 答對了！' : '❌ 再想想～') +
+    ' 正確答案是 <b class="ans">' + correctText + '</b>。<br>' + item.why;
+  $('score').textContent = `得分 ${score}`;
+  $('next').disabled = false;
+}));
+
+$('next').addEventListener('click', () => {
+  idx++;
+  if (idx < QUESTIONS.length) { render(); }
+  else { showResult(); }
+});
+
+function showResult() {
+  $('bar').style.width = '100%';
+  document.querySelector('#quiz .card').style.display = 'none';
+  const r = $('result'); r.classList.add('show');
+  $('finalScore').textContent = score + ' / ' + QUESTIONS.length;
+  let msg;
+  if (score === QUESTIONS.length) msg = '滿分！你已經完全抓到 Cowork 委派指令、Connector/Skill 選擇、權限機制的訣竅了 🎉';
+  else if (score >= 7) msg = '很不錯！大方向都抓對了，回頭看看答錯那幾題的解釋就更穩。';
+  else msg = '再練一次吧——重點口訣：指令要具體、工具讓 Claude 自己選、批次操作用 Allow for this task。';
+  $('finalMsg').textContent = msg;
+}
+
+$('retry').addEventListener('click', () => {
+  idx = 0; score = 0;
+  $('result').classList.remove('show');
+  document.querySelector('#quiz .card').style.display = 'block';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

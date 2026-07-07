@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第10章 工程與開發實戰 — 互動練習</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --panel2: #172033;
+    --ink: #e2e8f0; --muted: #94a3b8; --line: #334155;
+    --chat: #38bdf8; --cowork: #a78bfa; --code: #34d399;
+    --ok: #22c55e; --bad: #f87171;
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Segoe UI', system-ui, "Microsoft JhengHei", sans-serif;
+    line-height: 1.7; padding: 24px 16px 80px;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: .02em; }
+  header .sub { color: var(--muted); margin-top: 4px; font-size: .9rem; }
+  .book { color: var(--cowork); }
+
+  section { margin-top: 28px; }
+  h2 { font-size: 1.1rem; margin-bottom: 12px; border-left: 4px solid var(--cowork);
+       padding-left: 10px; }
+
+  /* 三種工程實戰卡 */
+  .modes { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .mode { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+          padding: 14px; }
+  .mode h3 { font-size: 1rem; margin-bottom: 4px; }
+  .mode.review h3 { color: var(--chat); }
+  .mode.mcp h3 { color: var(--cowork); }
+  .mode.docs h3 { color: var(--code); }
+  .mode p { font-size: .82rem; color: var(--muted); }
+  .mode .tag { font-size: .72rem; color: var(--ink); opacity: .85; }
+
+  details { background: var(--panel2); border: 1px solid var(--line);
+            border-radius: 10px; padding: 10px 14px; margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .82rem; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  th { background: rgba(167,139,250,.12); }
+  .overflow { overflow-x: auto; }
+
+  /* 練習 */
+  #quiz .card { background: var(--panel); border: 1px solid var(--line);
+                border-radius: 12px; padding: 18px; }
+  .progress { height: 8px; background: var(--panel2); border-radius: 99px;
+              overflow: hidden; margin-bottom: 14px; }
+  .progress > i { display: block; height: 100%; width: 0;
+                  background: linear-gradient(90deg,var(--chat),var(--cowork)); transition: width .3s; }
+  .qmeta { display: flex; justify-content: space-between; font-size: .8rem;
+           color: var(--muted); margin-bottom: 8px; }
+  .scenario { font-size: 1.05rem; font-weight: 600; margin: 6px 0 16px;
+              background: var(--panel2); border-radius: 8px; padding: 14px; }
+  .scenario .quote { color: var(--muted); font-weight: 400; font-size: .85rem; display:block; margin-bottom:6px;}
+  .choices { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .choice { padding: 12px; border-radius: 10px; border: 1px solid var(--line);
+            background: transparent; color: var(--ink); font-size: .95rem; font-weight: 700;
+            cursor: pointer; transition: all .15s; }
+  .choice small { display:block; font-weight:400; font-size:.72rem; color:var(--muted); margin-top:2px;}
+  .choice:hover:not(:disabled) { border-color: var(--cowork); background: rgba(167,139,250,.08); }
+  .choice:disabled { cursor: default; opacity: .55; }
+  .choice.correct { border-color: var(--ok); background: rgba(34,197,94,.16); opacity:1; }
+  .choice.wrong { border-color: var(--bad); background: rgba(248,113,113,.16); opacity:1; }
+
+  .feedback { margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+              font-size: .9rem; display: none; }
+  .feedback.show { display: block; }
+  .feedback.good { background: rgba(34,197,94,.12); border: 1px solid var(--ok); }
+  .feedback.bad  { background: rgba(248,113,113,.12); border: 1px solid var(--bad); }
+  .feedback b.ans-review { color: var(--chat); }
+  .feedback b.ans-mcp { color: var(--cowork); }
+  .feedback b.ans-docs { color: var(--code); }
+
+  .nav { margin-top: 16px; text-align: right; }
+  button.next { background: var(--cowork); color: #1a1030; border: none; font-weight: 700;
+                padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: .95rem; }
+  button.next:disabled { opacity: .4; cursor: default; }
+
+  /* 結果 */
+  #result { display: none; text-align: center; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 12px; padding: 30px 18px; }
+  #result.show { display: block; }
+  #result .score { font-size: 2.4rem; font-weight: 800; color: var(--cowork); }
+  #result .msg { color: var(--muted); margin: 8px 0 18px; }
+  button.retry { background: transparent; color: var(--ink); border: 1px solid var(--line);
+                 padding: 9px 18px; border-radius: 8px; cursor: pointer; }
+
+  .demo { background: var(--panel2); border: 1px dashed var(--cowork); border-radius: 12px;
+          padding: 16px; margin-top: 14px; }
+  .demo code { background: #0b1220; padding: 2px 7px; border-radius: 5px; color: #e9d5ff;
+               font-size: .85rem; }
+  .demo .step { margin: 8px 0; }
+
+  @media (max-width: 640px) {
+    .modes { grid-template-columns: 1fr; }
+    .choices { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>第 10 章 · 工程與開發實戰</h1>
+    <div class="sub">互動練習｜出自《<span class="book">Claude Cowork：31 個超好用範例實作</span>》· 胡嘉璽著</div>
+  </header>
+
+  <!-- ── 重點回顧 ── -->
+  <section>
+    <h2>① 先回顧：三種工程實戰任務</h2>
+    <div class="modes">
+      <div class="mode review">
+        <h3>Code Review · 審查</h3>
+        <p class="tag">範例 19<br>GitHub Connector + docx Skill</p>
+        <p>讀取 PR 的差異內容，從安全性、效能、設計模式逐項分析，產出含修正程式碼的 Word 檢查清單。</p>
+      </div>
+      <div class="mode mcp">
+        <h3>MCP Server · 建置</h3>
+        <p class="tag">範例 20<br>mcp-builder Skill</p>
+        <p>把「想整合的 API、想要的功能」描述給 Cowork，自動產出符合最佳實踐、可重複使用的自訂工具。</p>
+      </div>
+      <div class="mode docs">
+        <h3>架構文件 · 產生</h3>
+        <p class="tag">範例 21<br>GitHub Connector + docx Skill</p>
+        <p>讀取整個 repo 的程式碼，自動產生含架構概覽、API 設計、資料庫結構的 Word 技術文件。</p>
+      </div>
+    </div>
+
+    <details>
+      <summary>展開三個範例的完整比較表</summary>
+      <div class="overflow">
+      <table>
+        <tr><th>比較項目</th><th>Code Review（範例19）</th><th>MCP Server（範例20）</th><th>架構文件（範例21）</th></tr>
+        <tr><td>核心用途</td><td>審查 PR 找問題</td><td>建立自訂工具</td><td>把程式碼轉成技術文件</td></tr>
+        <tr><td>需要的 Connector / Skill</td><td>GitHub Connector + docx Skill</td><td>mcp-builder Skill（不需 Connector）</td><td>GitHub Connector + docx Skill</td></tr>
+        <tr><td>輸入來源</td><td>指定 repo 的 PR 編號</td><td>描述想整合的 API 與功能</td><td>指定 repo 的整個程式碼庫</td></tr>
+        <tr><td>產出格式</td><td>Word 審查報告（含修正程式碼）</td><td>可直接執行的專案（server.py 等 5 檔）</td><td>Word 架構設計文件</td></tr>
+        <tr><td>適合時機</td><td>PR 待合併前把關</td><td>想讓 Claude 隨時能呼叫某個 API</td><td>新人上手 / 文件與程式碼脫節</td></tr>
+      </table>
+      </div>
+      <p style="margin-top:10px;font-size:.85rem;color:var(--muted)">
+        一句話：<b style="color:var(--chat)">Code Review 挑問題</b>、<b style="color:var(--cowork)">MCP Server 造工具</b>、<b style="color:var(--code)">架構文件補說明</b>。三者都靠 Cowork 直接讀程式碼，省去人工搬運。
+      </p>
+    </details>
+  </section>
+
+  <!-- ── 練習 ── -->
+  <section>
+    <h2>② 動手練習：這個開發需求該怎麼委派？</h2>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+      讀情境，點你判斷最適合的任務類型，會立刻告訴你對不對＋為什麼。共 10 題。
+    </p>
+
+    <div id="quiz">
+      <div class="card">
+        <div class="progress"><i id="bar"></i></div>
+        <div class="qmeta"><span id="qnum">第 1 / 10 題</span><span id="score">得分 0</span></div>
+        <div class="scenario" id="scenario"></div>
+        <div class="choices">
+          <button class="choice" data-pick="review">Code Review<small>審查 PR</small></button>
+          <button class="choice" data-pick="mcp">MCP Server<small>建工具</small></button>
+          <button class="choice" data-pick="docs">架構文件<small>產文件</small></button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="nav"><button class="next" id="next" disabled>下一題 →</button></div>
+      </div>
+
+      <div id="result">
+        <div class="score" id="finalScore"></div>
+        <div class="msg" id="finalMsg"></div>
+        <button class="retry" id="retry">再練一次</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 真實 demo ── -->
+  <section>
+    <h2>③ 接回真實操作：到 Cowork 做一次 demo</h2>
+    <div class="demo">
+      <p>光做題不夠，打開 <b>Claude Desktop</b> → 切到 <b class="book">Cowork</b> 分頁，先在 <b>Settings &gt; Customize &gt; Connectors</b> 確認已連接 GitHub，再把書中範例 19 的審查任務貼進去實際跑一次（repo 和 PR 編號換成你自己的）：</p>
+      <div class="step">1️⃣ 在任務輸入區貼上：<br><code>請幫我審查 GitHub repo joshhu/cowork-demo-api 的 Pull Request#1。這個 PR 新增了待辦事項 API 的進階功能（優先級、標籤、搜尋、統計端點）。請逐一檢查：1) 程式碼品質與可讀性 2)SQL injection 等安全性問題 3) 錯誤處理是否完善 4)API 設計是否符合 RESTful 慣例。最後產生一份 Code Review Checklist 的 Word 文件。</code></div>
+      <div class="step">2️⃣ 按 <b>Let's go →</b>，觀察右側 <b>Progress</b> 面板依序完成七個步驟，<b>Context</b> 面板會顯示已載入 docx Skill。</div>
+      <div class="step">3️⃣ 完成後點開產出的 <code>code-review-pr1.docx</code>，體會「不只挑問題、還附上可直接複製的修正程式碼」的差異——這正是委派給 Cowork 和自己肉眼看 diff 的根本不同。</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:8px">⚠️ Cowork 目前是研究預覽版（research preview），第一次跑會請你確認 GitHub 存取權限，放心它每步都會問過你。</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// 題庫：情境取自書中三個範例（Code Review / MCP Server / 架構文件）的實際任務描述
+const QUESTIONS = [
+  { q: '我剛開了一個 PR，想知道有沒有 SQL Injection 或資料庫連線沒釋放的問題，順便產一份檢查清單給同事看。', a: 'review',
+    why: '這正是範例 19 的任務：用 GitHub Connector 讀 PR 差異，逐一檢查安全性、錯誤處理，再用 docx Skill 產出 Word 檢查清單。' },
+  { q: '我想讓 Claude 以後可以直接查詢氣象 API 的即時天氣、預報和空氣品質，變成一個隨時能呼叫的工具。', a: 'mcp',
+    why: '這正是範例 20 的任務內容——OpenWeatherMap 的三個功能（get_current_weather / get_forecast / get_air_quality），用 mcp-builder Skill 打造可重複使用的 MCP Server。' },
+  { q: '新人下週要加入團隊，我想給他一份完整說明系統架構、API 設計、資料庫結構的文件，方便他快速上手。', a: 'docs',
+    why: '書中明確指出「新成員加入團隊時需要架構文件來快速上手」，這正是範例 21 技術文件自動化要解決的痛點。' },
+  { q: '審查別只看語法對不對，麻煩也一併看看有沒有 N+1 查詢或資源沒釋放這種要理解執行流程才看得出來的問題。', a: 'review',
+    why: '書中強調 Cowork 的審查和 linter 本質不同：linter 只查語法風格，Cowork 能理解語義與上下文，發現 N+1 查詢、資源洩漏這類問題。' },
+  { q: '我要建一個能查天氣、預報、空氣品質三種功能的小工具，之後任何對話都能直接呼叫它，不用每次都貼說明。', a: 'mcp',
+    why: 'MCP（Model Context Protocol）就是讓 Claude 能重複呼叫外部 API 的標準協定，mcp-builder Skill 專門用來從零建立這種可重複使用的工具。' },
+  { q: '這個 repo 的技術文件太舊了，想從目前最新的程式碼重新產生一份跟現況同步的架構文件。', a: 'docs',
+    why: '書中點出技術文件最大的痛點是「程式碼每天都在變化，但文件總是跟不上」，Cowork 可以隨時從最新程式碼重新產生同步的文件。' },
+  { q: '這次審查除了列出問題，還要把修正用的程式碼一起寫出來，方便我直接複製貼到 PR 的 review comment。', a: 'review',
+    why: '書中特別強調範例 19 報告的價值：「不只是指出問題，還提供了可以直接複製貼上的修正程式碼」，方便附在 PR review comment 中。' },
+  { q: '在正式使用 Claude 呼叫這個工具之前，我得先去申請 API Key、設定 .env、用 uv 安裝依賴套件，這是哪個範例的產出流程？', a: 'mcp',
+    why: '這是 mcp-builder Skill 範例中「如何使用產出的 MCP Server」的四個步驟：取得 API Key、設定環境變數、安裝依賴、在 Claude Desktop 新增 MCP Server 設定。' },
+  { q: '文件要包含系統架構概覽、API 端點設計、資料庫結構、安全性設計、部署建議五大章節，還要有表格和程式碼範例。', a: 'docs',
+    why: '這是範例 21 任務描述中指定的五大章節要求，也是 Architecture Design Document 的標準結構。' },
+  { q: '審查完後綜合評估是「需要修改」，報告要求 CRITICAL/HIGH 問題必須在合併前修正，MEDIUM 問題可以先開 issue 追蹤。', a: 'review',
+    why: '這對應範例 19 的審查結果分析：Cowork 按嚴重性等級（CRITICAL/HIGH/MEDIUM）分類問題，決定哪些要立即修正、哪些可以先開 issue 延後處理。' },
+];
+
+const LABEL = { review: 'Code Review（審查）', mcp: 'MCP Server（建工具）', docs: '架構文件（產文件）' };
+let idx = 0, score = 0, answered = false;
+
+const $ = id => document.getElementById(id);
+const scenarioEl = $('scenario'), feedbackEl = $('feedback');
+const choices = [...document.querySelectorAll('.choice')];
+
+function render() {
+  answered = false;
+  const item = QUESTIONS[idx];
+  scenarioEl.innerHTML = '<span class="quote">情境：</span>' + item.q;
+  $('qnum').textContent = `第 ${idx + 1} / ${QUESTIONS.length} 題`;
+  $('score').textContent = `得分 ${score}`;
+  $('bar').style.width = (idx / QUESTIONS.length * 100) + '%';
+  feedbackEl.className = 'feedback';
+  feedbackEl.innerHTML = '';
+  $('next').disabled = true;
+  choices.forEach(c => { c.disabled = false; c.className = 'choice'; });
+}
+
+choices.forEach(c => c.addEventListener('click', () => {
+  if (answered) return;
+  answered = true;
+  const pick = c.dataset.pick;
+  const item = QUESTIONS[idx];
+  const correct = pick === item.a;
+  if (correct) score++;
+  choices.forEach(x => {
+    x.disabled = true;
+    if (x.dataset.pick === item.a) x.classList.add('correct');
+    else if (x.dataset.pick === pick) x.classList.add('wrong');
+  });
+  feedbackEl.className = 'feedback show ' + (correct ? 'good' : 'bad');
+  feedbackEl.innerHTML =
+    (correct ? '✅ 答對了！' : '❌ 再想想～') +
+    ' 正確答案是 <b class="ans-' + item.a + '">' + LABEL[item.a] + '</b>。<br>' + item.why;
+  $('score').textContent = `得分 ${score}`;
+  $('next').disabled = false;
+}));
+
+$('next').addEventListener('click', () => {
+  idx++;
+  if (idx < QUESTIONS.length) { render(); }
+  else { showResult(); }
+});
+
+function showResult() {
+  $('bar').style.width = '100%';
+  document.querySelector('#quiz .card').style.display = 'none';
+  const r = $('result'); r.classList.add('show');
+  $('finalScore').textContent = score + ' / ' + QUESTIONS.length;
+  let msg;
+  if (score === QUESTIONS.length) msg = '滿分！你已經完全分得清 Code Review / MCP Server / 架構文件三種工程委派了 🎉';
+  else if (score >= 7) msg = '很不錯！大方向都抓對了，回頭看看答錯那幾題的解釋就更穩。';
+  else msg = '再練一次吧——重點口訣：挑問題用 Code Review、造工具用 MCP Server、補說明用架構文件。';
+  $('finalMsg').textContent = msg;
+}
+
+$('retry').addEventListener('click', () => {
+  idx = 0; score = 0;
+  $('result').classList.remove('show');
+  document.querySelector('#quiz .card').style.display = 'block';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

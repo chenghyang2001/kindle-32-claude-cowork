@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第7章 辦公文件製作實戰 — 互動練習</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --panel2: #172033;
+    --ink: #e2e8f0; --muted: #94a3b8; --line: #334155;
+    --chat: #38bdf8; --cowork: #a78bfa; --code: #34d399;
+    --ok: #22c55e; --bad: #f87171;
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Segoe UI', system-ui, "Microsoft JhengHei", sans-serif;
+    line-height: 1.7; padding: 24px 16px 80px;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: .02em; }
+  header .sub { color: var(--muted); margin-top: 4px; font-size: .9rem; }
+  .book { color: var(--cowork); }
+
+  section { margin-top: 28px; }
+  h2 { font-size: 1.1rem; margin-bottom: 12px; border-left: 4px solid var(--cowork);
+       padding-left: 10px; }
+
+  /* 三種 Skill 卡 */
+  .modes { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .mode { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+          padding: 14px; }
+  .mode h3 { font-size: 1rem; margin-bottom: 4px; }
+  .mode.chat h3 { color: var(--chat); }
+  .mode.cowork h3 { color: var(--cowork); }
+  .mode.code h3 { color: var(--code); }
+  .mode p { font-size: .82rem; color: var(--muted); }
+  .mode .tag { font-size: .72rem; color: var(--ink); opacity: .85; }
+
+  details { background: var(--panel2); border: 1px solid var(--line);
+            border-radius: 10px; padding: 10px 14px; margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .82rem; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  th { background: rgba(167,139,250,.12); }
+  .overflow { overflow-x: auto; }
+
+  /* 練習 */
+  #quiz .card { background: var(--panel); border: 1px solid var(--line);
+                border-radius: 12px; padding: 18px; }
+  .progress { height: 8px; background: var(--panel2); border-radius: 99px;
+              overflow: hidden; margin-bottom: 14px; }
+  .progress > i { display: block; height: 100%; width: 0;
+                  background: linear-gradient(90deg,var(--chat),var(--cowork)); transition: width .3s; }
+  .qmeta { display: flex; justify-content: space-between; font-size: .8rem;
+           color: var(--muted); margin-bottom: 8px; }
+  .scenario { font-size: 1.05rem; font-weight: 600; margin: 6px 0 16px;
+              background: var(--panel2); border-radius: 8px; padding: 14px; }
+  .scenario .quote { color: var(--muted); font-weight: 400; font-size: .85rem; display:block; margin-bottom:6px;}
+  .choices { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .choice { padding: 12px; border-radius: 10px; border: 1px solid var(--line);
+            background: transparent; color: var(--ink); font-size: .95rem; font-weight: 700;
+            cursor: pointer; transition: all .15s; }
+  .choice small { display:block; font-weight:400; font-size:.72rem; color:var(--muted); margin-top:2px;}
+  .choice:hover:not(:disabled) { border-color: var(--cowork); background: rgba(167,139,250,.08); }
+  .choice:disabled { cursor: default; opacity: .55; }
+  .choice.correct { border-color: var(--ok); background: rgba(34,197,94,.16); opacity:1; }
+  .choice.wrong { border-color: var(--bad); background: rgba(248,113,113,.16); opacity:1; }
+
+  .feedback { margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+              font-size: .9rem; display: none; }
+  .feedback.show { display: block; }
+  .feedback.good { background: rgba(34,197,94,.12); border: 1px solid var(--ok); }
+  .feedback.bad  { background: rgba(248,113,113,.12); border: 1px solid var(--bad); }
+  .feedback b.ans-pptx { color: var(--chat); }
+  .feedback b.ans-doc { color: var(--cowork); }
+  .feedback b.ans-xlsx { color: var(--code); }
+
+  .nav { margin-top: 16px; text-align: right; }
+  button.next { background: var(--cowork); color: #1a1030; border: none; font-weight: 700;
+                padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: .95rem; }
+  button.next:disabled { opacity: .4; cursor: default; }
+
+  /* 結果 */
+  #result { display: none; text-align: center; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 12px; padding: 30px 18px; }
+  #result.show { display: block; }
+  #result .score { font-size: 2.4rem; font-weight: 800; color: var(--cowork); }
+  #result .msg { color: var(--muted); margin: 8px 0 18px; }
+  button.retry { background: transparent; color: var(--ink); border: 1px solid var(--line);
+                 padding: 9px 18px; border-radius: 8px; cursor: pointer; }
+
+  .demo { background: var(--panel2); border: 1px dashed var(--cowork); border-radius: 12px;
+          padding: 16px; margin-top: 14px; }
+  .demo code { background: #0b1220; padding: 2px 7px; border-radius: 5px; color: #e9d5ff;
+               font-size: .85rem; }
+  .demo .step { margin: 8px 0; }
+
+  @media (max-width: 640px) {
+    .modes { grid-template-columns: 1fr; }
+    .choices { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>第 7 章 · 辦公文件製作實戰</h1>
+    <div class="sub">互動練習｜出自《<span class="book">Claude Cowork：31 個超好用範例實作</span>》· 胡嘉璽著</div>
+  </header>
+
+  <!-- ── 重點回顧 ── -->
+  <section>
+    <h2>① 先回顧：三個辦公文件 Skill</h2>
+    <div class="modes">
+      <div class="mode chat">
+        <h3>pptx · 簡報</h3>
+        <p class="tag">「筆記轉簡報」<br>指令驅動</p>
+        <p>把 Markdown 筆記轉成 PowerPoint。Claude 會依內容性質選版面（數據用卡片、時程用時間軸、預算用圖表），並自動做視覺 QA。</p>
+      </div>
+      <div class="mode code">
+        <h3>xlsx · 試算表</h3>
+        <p class="tag">「從零建表」<br>指令驅動</p>
+        <p>用 openpyxl 建立含公式、條件格式、多工作表的 Excel。完成後用獨立 recalc.py 腳本重新計算所有公式，零錯誤才交付。</p>
+      </div>
+      <div class="mode cowork">
+        <h3>doc-coauthoring · 協作撰稿</h3>
+        <p class="tag">「協作撰寫正式文件」<br>協作驅動</p>
+        <p>不會拿到指令就埋頭寫，而是先問你關鍵問題了解背景，分三階段（脈絡蒐集→逐節打磨→讀者測試）完成，最後用子代理做讀者測試。</p>
+      </div>
+    </div>
+
+    <details>
+      <summary>展開書中的三個 Skill 完整比較表</summary>
+      <div class="overflow">
+      <table>
+        <tr><th>比較項目</th><th>pptx</th><th>xlsx</th><th>doc-coauthoring</th></tr>
+        <tr><td>互動模式</td><td>指令驅動：你描述需求，Claude 獨立完成</td><td>指令驅動：你描述需求，Claude 獨立完成</td><td>協作驅動：Claude 先問問題，再依回答撰寫</td></tr>
+        <tr><td>需要的資源</td><td>Skill pptx + Connector（讀筆記檔）</td><td>Skill xlsx（內建，自動載入）</td><td>Skill doc-coauthoring + docx + Desktop Commander</td></tr>
+        <tr><td>底層技術</td><td>PptxGenJS 撰寫 JS 腳本產生 .pptx</td><td>openpyxl 撰寫 Python 腳本產生 .xlsx</td><td>結構化協作方法論（三階段流程）</td></tr>
+        <tr><td>自動品質檢查</td><td>視覺 QA：投影片轉圖片逐張檢查邊界/截斷</td><td>recalc.py 重新計算所有公式，驗證零錯誤</td><td>用一個全新的 Claude 實例做讀者測試</td></tr>
+        <tr><td>適合場景</td><td>週會簡報、成果報告、筆記轉簡報</td><td>薪資表、業績統計、需要公式與跨表查詢的報表</td><td>董事會提案、技術規格書、策略決策文件</td></tr>
+      </table>
+      </div>
+      <p style="margin-top:10px;font-size:.85rem;color:var(--muted)">
+        一句話：<b style="color:var(--chat)">pptx 轉簡報</b>、<b style="color:var(--code)">xlsx 建表算公式</b>、<b style="color:var(--cowork)">doc-coauthoring 協作寫正式文件</b>。日常報表用指令驅動就夠，給高層/客戶的正式文件用協作模式更精準。
+      </p>
+    </details>
+  </section>
+
+  <!-- ── 練習 ── -->
+  <section>
+    <h2>② 動手練習：這個辦公文件需求該用哪個 Skill？</h2>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+      讀情境，點你判斷的 Skill，會立刻告訴你對不對＋為什麼。共 10 題。
+    </p>
+
+    <div id="quiz">
+      <div class="card">
+        <div class="progress"><i id="bar"></i></div>
+        <div class="qmeta"><span id="qnum">第 1 / 10 題</span><span id="score">得分 0</span></div>
+        <div class="scenario" id="scenario"></div>
+        <div class="choices">
+          <button class="choice" data-pick="pptx">pptx<small>簡報</small></button>
+          <button class="choice" data-pick="xlsx">xlsx<small>試算表</small></button>
+          <button class="choice" data-pick="doc">doc-coauthoring<small>協作撰稿</small></button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="nav"><button class="next" id="next" disabled>下一題 →</button></div>
+      </div>
+
+      <div id="result">
+        <div class="score" id="finalScore"></div>
+        <div class="msg" id="finalMsg"></div>
+        <button class="retry" id="retry">再練一次</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 真實 demo ── -->
+  <section>
+    <h2>③ 接回真實操作：到 Cowork 做一次 demo</h2>
+    <div class="demo">
+      <p>光做題不夠，打開 <b>Claude Desktop</b> → 切到 <b class="book">Cowork</b> 分頁，把書中範例 10 的任務貼進去實際跑一次（先在桌面準備一份 Markdown 會議筆記，例如「會議筆記-AI策略規劃.md」）：</p>
+      <div class="step">1️⃣ 在任務輸入區貼上：<br><code>我的桌面上有一份會議筆記檔案（會議筆記-AI策略規劃.md），是上週 AI 策略規劃會議的紀錄。請幫我：1) 讀取這份筆記的完整內容 2) 將筆記內容轉換成一份專業的 PowerPoint 簡報（.pptx），包含：封面頁、目錄頁、每個主題一張投影片 3) 每張投影片要有清楚的標題和重點條列 4) 加入適當的表格來呈現數據 5) 最後一張是 Q&A 頁面。請產生約 10-12 張投影片的簡報。</code></div>
+      <div class="step">2️⃣ 按 <b>Let's go →</b>，過程中若出現「Claude wants to use start_process from Desktop Commander」的權限請求，確認指令只是 <code>cat</code> 讀檔後按 <b>Allow for this task</b>。</div>
+      <div class="step">3️⃣ 觀察 Progress 面板的六步驟：讀取筆記 → 讀 pptx 技能文件 → 撰寫簡報程式碼 → 產生 PPTX → 視覺品質檢查（QA）→ 修正問題並交付。留意 Claude 有沒有自己抓出投影片截斷之類的問題並自動修正。</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:8px">⚠️ Cowork 目前是研究預覽版（research preview），每個檔案存取 / 執行指令的請求都會先問過你，放心確認即可。</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// 題庫：情境取自書中三個範例（10 從筆記產生 PPT／11 產生含公式的 Excel／12 doc-coauthoring 協作撰稿）
+const QUESTIONS = [
+  { q: '開完會之後，要把一份 Markdown 格式的會議筆記轉換成一份含封面、目錄、內容、Q&A 的專業投影片。', a: 'pptx',
+    why: '這是書中範例 10 的招牌場景：內容已經在筆記裡了，缺的只是「轉換成簡報格式」，正是 pptx Skill 的用途。' },
+  { q: '要建立一份「2026 年度部門人力與薪資管理」試算表，含員工資料、用 VLOOKUP 查詢跨表計算年薪，還要用 COUNTIF/AVERAGEIF 統計各部門數據。', a: 'xlsx',
+    why: 'VLOOKUP、COUNTIF、AVERAGEIF 都是 Excel 公式，需要 xlsx Skill 用 openpyxl 建立含公式的多工作表試算表。' },
+  { q: '要撰寫一份提交給董事會審閱的「公司 AI 導入計畫提案書」，希望 Claude 先了解公司背景和讀者是誰，再開始撰寫。', a: 'doc',
+    why: '書中範例 12 的重點：doc-coauthoring 是「協作驅動」，會先問清楚背景問題（產業別、痛點等）才動筆，適合需要精準掌握讀者背景的正式文件。' },
+  { q: '週會簡報要把「公司現況分析」的三個關鍵數據（導入率、滿意度、接受度）做成一目了然的數據卡片。', a: 'pptx',
+    why: 'pptx Skill 會依內容性質選版面，數字型資料適合用卡片式佈局呈現，這正是書中「公司現況分析」那張投影片的做法。' },
+  { q: '需要在試算表中，把年薪超過 150 萬的儲存格自動標記綠色、低於 80 萬的標記紅色。', a: 'xlsx',
+    why: '這是條件格式（conditional formatting），屬於 Excel 的功能，書中範例 11 的薪資計算表就用了同樣的門檻設定。' },
+  { q: '要寫一份技術規格書給非技術背景的高層看，內容需要精準的論述策略，不是把資訊條列出來就好。', a: 'doc',
+    why: '書中提到這種模式特別適合正式文件：董事會提案、技術規格書、策略決策文件，因為需要精準掌握讀者背景，不是 AI 自己猜得出來的。' },
+  { q: '要在投影片中呈現「總預算 1,500 萬」的分配狀況，用 2×2 卡片佈局搭配一個甜甜圈圖表。', a: 'pptx',
+    why: '書中「預算規劃」那張投影片正是用 2×2 卡片 + 甜甜圈圖表呈現預算分配，屬於 pptx Skill 依數據性質選版面的能力。' },
+  { q: '產生 Excel 檔後，發現 MAXIFS/MINIFS 函數在 LibreOffice 中不被支援，需要自動偵測並改用相容公式重新產生。', a: 'xlsx',
+    why: '這是書中範例 11 實際遇到的相容性問題，Claude 用 xlsx Skill 自動偵測並改用替代公式，最後 210 個公式全部驗證通過。' },
+  { q: '任務一開始，Claude 沒有直接動筆寫文件，而是先問「你的公司屬於哪個產業？」「公司主要痛點是什麼？」等問題。', a: 'doc',
+    why: '這正是 doc-coauthoring 的第一階段「脈絡蒐集」：用互動式問答了解背景，這是它與 pptx / xlsx「指令驅動」模式最大的不同。' },
+  { q: '要把粗略的會議筆記轉成 9 張投影片，並指定用深藍色系（例如公司品牌色）的專業配色。', a: 'pptx',
+    why: '書中提到你可以在指令中指定配色偏好，Claude 會調整全套投影片的配色，範例 10 最終產生的就是「Midnight Executive」深藍配色的 9 張投影片。' },
+];
+
+const LABEL = { pptx: 'pptx（簡報）', xlsx: 'xlsx（試算表）', doc: 'doc-coauthoring（協作撰稿）' };
+let idx = 0, score = 0, answered = false;
+
+const $ = id => document.getElementById(id);
+const scenarioEl = $('scenario'), feedbackEl = $('feedback');
+const choices = [...document.querySelectorAll('.choice')];
+
+function render() {
+  answered = false;
+  const item = QUESTIONS[idx];
+  scenarioEl.innerHTML = '<span class="quote">情境：</span>' + item.q;
+  $('qnum').textContent = `第 ${idx + 1} / ${QUESTIONS.length} 題`;
+  $('score').textContent = `得分 ${score}`;
+  $('bar').style.width = (idx / QUESTIONS.length * 100) + '%';
+  feedbackEl.className = 'feedback';
+  feedbackEl.innerHTML = '';
+  $('next').disabled = true;
+  choices.forEach(c => { c.disabled = false; c.className = 'choice'; });
+}
+
+choices.forEach(c => c.addEventListener('click', () => {
+  if (answered) return;
+  answered = true;
+  const pick = c.dataset.pick;
+  const item = QUESTIONS[idx];
+  const correct = pick === item.a;
+  if (correct) score++;
+  choices.forEach(x => {
+    x.disabled = true;
+    if (x.dataset.pick === item.a) x.classList.add('correct');
+    else if (x.dataset.pick === pick) x.classList.add('wrong');
+  });
+  feedbackEl.className = 'feedback show ' + (correct ? 'good' : 'bad');
+  feedbackEl.innerHTML =
+    (correct ? '✅ 答對了！' : '❌ 再想想～') +
+    ' 正確答案是 <b class="ans-' + item.a + '">' + LABEL[item.a] + '</b>。<br>' + item.why;
+  $('score').textContent = `得分 ${score}`;
+  $('next').disabled = false;
+}));
+
+$('next').addEventListener('click', () => {
+  idx++;
+  if (idx < QUESTIONS.length) { render(); }
+  else { showResult(); }
+});
+
+function showResult() {
+  $('bar').style.width = '100%';
+  document.querySelector('#quiz .card').style.display = 'none';
+  const r = $('result'); r.classList.add('show');
+  $('finalScore').textContent = score + ' / ' + QUESTIONS.length;
+  let msg;
+  if (score === QUESTIONS.length) msg = '滿分！你已經完全分得清 pptx / xlsx / doc-coauthoring 三個 Skill 了 🎉';
+  else if (score >= 7) msg = '很不錯！大方向都抓對了，回頭看看答錯那幾題的解釋就更穩。';
+  else msg = '再練一次吧——重點口訣：轉簡報用 pptx、算公式用 xlsx、寫正式文件用 doc-coauthoring。';
+  $('finalMsg').textContent = msg;
+}
+
+$('retry').addEventListener('click', () => {
+  idx = 0; score = 0;
+  $('result').classList.remove('show');
+  document.querySelector('#quiz .card').style.display = 'block';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2章 設定你的 Cowork — 互動練習</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --panel2: #172033;
+    --ink: #e2e8f0; --muted: #94a3b8; --line: #334155;
+    --chat: #38bdf8; --cowork: #a78bfa; --code: #34d399;
+    --ok: #22c55e; --bad: #f87171;
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Segoe UI', system-ui, "Microsoft JhengHei", sans-serif;
+    line-height: 1.7; padding: 24px 16px 80px;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: .02em; }
+  header .sub { color: var(--muted); margin-top: 4px; font-size: .9rem; }
+  .book { color: var(--cowork); }
+
+  section { margin-top: 28px; }
+  h2 { font-size: 1.1rem; margin-bottom: 12px; border-left: 4px solid var(--cowork);
+       padding-left: 10px; }
+
+  /* 核心設定卡 */
+  .modes { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .mode { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+          padding: 14px; }
+  .mode h3 { font-size: 1rem; margin-bottom: 4px; }
+  .mode.chat h3 { color: var(--chat); }
+  .mode.cowork h3 { color: var(--cowork); }
+  .mode.code h3 { color: var(--code); }
+  .mode p { font-size: .82rem; color: var(--muted); }
+  .mode .tag { font-size: .72rem; color: var(--ink); opacity: .85; }
+
+  details { background: var(--panel2); border: 1px solid var(--line);
+            border-radius: 10px; padding: 10px 14px; margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .82rem; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  th { background: rgba(167,139,250,.12); }
+  .overflow { overflow-x: auto; }
+
+  /* 練習 */
+  #quiz .card { background: var(--panel); border: 1px solid var(--line);
+                border-radius: 12px; padding: 18px; }
+  .progress { height: 8px; background: var(--panel2); border-radius: 99px;
+              overflow: hidden; margin-bottom: 14px; }
+  .progress > i { display: block; height: 100%; width: 0;
+                  background: linear-gradient(90deg,var(--chat),var(--cowork)); transition: width .3s; }
+  .qmeta { display: flex; justify-content: space-between; font-size: .8rem;
+           color: var(--muted); margin-bottom: 8px; }
+  .scenario { font-size: 1.05rem; font-weight: 600; margin: 6px 0 16px;
+              background: var(--panel2); border-radius: 8px; padding: 14px; }
+  .scenario .quote { color: var(--muted); font-weight: 400; font-size: .85rem; display:block; margin-bottom:6px;}
+  .choices { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .choice { padding: 12px; border-radius: 10px; border: 1px solid var(--line);
+            background: transparent; color: var(--ink); font-size: .95rem; font-weight: 700;
+            cursor: pointer; transition: all .15s; }
+  .choice small { display:block; font-weight:400; font-size:.72rem; color:var(--muted); margin-top:2px;}
+  .choice:hover:not(:disabled) { border-color: var(--cowork); background: rgba(167,139,250,.08); }
+  .choice:disabled { cursor: default; opacity: .55; }
+  .choice.correct { border-color: var(--ok); background: rgba(34,197,94,.16); opacity:1; }
+  .choice.wrong { border-color: var(--bad); background: rgba(248,113,113,.16); opacity:1; }
+
+  .feedback { margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+              font-size: .9rem; display: none; }
+  .feedback.show { display: block; }
+  .feedback.good { background: rgba(34,197,94,.12); border: 1px solid var(--ok); }
+  .feedback.bad  { background: rgba(248,113,113,.12); border: 1px solid var(--bad); }
+  .feedback b.ans { color: var(--cowork); }
+
+  .nav { margin-top: 16px; text-align: right; }
+  button.next { background: var(--cowork); color: #1a1030; border: none; font-weight: 700;
+                padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: .95rem; }
+  button.next:disabled { opacity: .4; cursor: default; }
+
+  /* 結果 */
+  #result { display: none; text-align: center; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 12px; padding: 30px 18px; }
+  #result.show { display: block; }
+  #result .score { font-size: 2.4rem; font-weight: 800; color: var(--cowork); }
+  #result .msg { color: var(--muted); margin: 8px 0 18px; }
+  button.retry { background: transparent; color: var(--ink); border: 1px solid var(--line);
+                 padding: 9px 18px; border-radius: 8px; cursor: pointer; }
+
+  .demo { background: var(--panel2); border: 1px dashed var(--cowork); border-radius: 12px;
+          padding: 16px; margin-top: 14px; }
+  .demo code { background: #0b1220; padding: 2px 7px; border-radius: 5px; color: #e9d5ff;
+               font-size: .85rem; white-space: pre-wrap; display: inline-block; }
+  .demo .step { margin: 8px 0; }
+
+  @media (max-width: 640px) {
+    .modes { grid-template-columns: 1fr; }
+    .choices { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>第 2 章 · 設定你的 Cowork</h1>
+    <div class="sub">互動練習｜出自《<span class="book">Claude Cowork：31 個超好用範例實作</span>》· 胡嘉璽著</div>
+  </header>
+
+  <!-- ── 重點回顧 ── -->
+  <section>
+    <h2>① 先回顧：Cowork 的四大核心設定</h2>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+      就像搬進新辦公室要先把桌椅擺好、網路接上，開始委派任務之前，也要先把 Cowork 的環境設定好。
+    </p>
+    <div class="modes">
+      <div class="mode chat">
+        <h3>General</h3>
+        <p class="tag">個人檔案與通知</p>
+        <p>設定全名、暱稱、工作類型、個人偏好（例如「用繁體中文台灣用語」），以及回應完成／Dispatch 訊息等通知開關。</p>
+      </div>
+      <div class="mode cowork">
+        <h3>Capabilities</h3>
+        <p class="tag">記憶與工具載入</p>
+        <p>Memory 記憶功能、Tool access mode（工具載入方式）、Visuals（Artifacts）、Code execution 與網路存取範圍。</p>
+      </div>
+      <div class="mode code">
+        <h3>Connectors</h3>
+        <p class="tag">連接外部服務</p>
+        <p>Web Connectors（雲端執行，如 Google Drive／Gmail）與 Desktop Connectors（本機執行，如 Control your Mac）。</p>
+      </div>
+    </div>
+
+    <details>
+      <summary>展開書中的十大設定分類一覽表</summary>
+      <div class="overflow">
+      <table>
+        <tr><th>分類</th><th>負責什麼</th></tr>
+        <tr><td>General</td><td>個人檔案、暱稱、工作類型、偏好設定、通知</td></tr>
+        <tr><td>Account</td><td>帳號資訊、登入方式、刪除帳號</td></tr>
+        <tr><td>Privacy</td><td>隱私設定、資料使用、模型訓練</td></tr>
+        <tr><td>Billing</td><td>訂閱方案、付款方式</td></tr>
+        <tr><td>Usage</td><td>使用量統計、配額剩餘</td></tr>
+        <tr><td>Capabilities</td><td>Memory 記憶功能、Tool access mode</td></tr>
+        <tr><td>Connectors</td><td>Web 與 Desktop 連接器管理</td></tr>
+        <tr><td>Claude Code</td><td>Claude Code 終端機工具設定</td></tr>
+        <tr><td>Cowork</td><td>Dispatch 開關、全域指示、Guest pass</td></tr>
+        <tr><td>Claude in Chrome</td><td>Chrome 瀏覽器擴充功能設定</td></tr>
+      </table>
+      </div>
+      <p style="margin-top:10px;font-size:.85rem;color:var(--muted)">
+        另外 Skills（技能）和 Plugins（外掛）搬到左側欄的「Customize」頁面統一管理：
+        <b style="color:var(--chat)">Skill 教 Claude 新的「做法」</b>（如何做某件事），
+        <b style="color:var(--cowork)">Plugin 給 Claude 新的「知識」</b>（某領域的專業知識）。
+      </p>
+    </details>
+
+    <details>
+      <summary>展開 Web Connectors vs Desktop Connectors 對照表</summary>
+      <div class="overflow">
+      <table>
+        <tr><th>比較項目</th><th>Web Connectors</th><th>Desktop Connectors</th></tr>
+        <tr><td>執行位置</td><td>Anthropic 伺服器</td><td>你的本機電腦</td></tr>
+        <tr><td>標示</td><td>無特殊標示</td><td>標示「DESKTOP」或「INCLUDED」</td></tr>
+        <tr><td>需要的條件</td><td>授權 OAuth 連線</td><td>安裝對應的本機軟體或擴充功能</td></tr>
+        <tr><td>範例</td><td>Google Drive、Gmail、GitHub</td><td>Control your Mac、iMessages、Apple Notes</td></tr>
+        <tr><td>是否需要電腦開機</td><td>否，伺服器端執行</td><td>是，必須在你的電腦上執行</td></tr>
+      </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ── 練習 ── -->
+  <section>
+    <h2>② 動手練習：這個需求該怎麼設定？</h2>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+      讀情境，點你判斷該去的設定分類或該選的選項，會立刻告訴你對不對＋為什麼。共 10 題。
+    </p>
+
+    <div id="quiz">
+      <div class="card">
+        <div class="progress"><i id="bar"></i></div>
+        <div class="qmeta"><span id="qnum">第 1 / 10 題</span><span id="score">得分 0</span></div>
+        <div class="scenario" id="scenario"></div>
+        <div class="choices" id="choices"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="nav"><button class="next" id="next" disabled>下一題 →</button></div>
+      </div>
+
+      <div id="result">
+        <div class="score" id="finalScore"></div>
+        <div class="msg" id="finalMsg"></div>
+        <button class="retry" id="retry">再練一次</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 真實 demo ── -->
+  <section>
+    <h2>③ 接回真實操作：到 Settings 實際設定一次</h2>
+    <div class="demo">
+      <p>光做題不夠，打開 <b>Claude Desktop</b> → 按 <b>Cmd + ,</b>（或點左下角使用者名稱 → Settings）進入設定頁面，實際做一次書中的初始設定：</p>
+      <div class="step">1️⃣ 點左側「<b>Connectors</b>」，找到 <b>Google Drive</b> 點 <b>Configure</b>，走一次 OAuth 授權，看狀態變成綠色的 <b>Connected</b>。</div>
+      <div class="step">2️⃣ 點左側「<b>Cowork</b>」，找到 <b>Global instructions</b> 區塊，點 <b>Edit</b>，貼上以下內容：<br>
+        <code>所有回覆一律使用繁體中文台灣用語；刪除任何檔案之前一定要先詢問我；程式碼一律使用 Python，套件管理用 uv。</code>
+      </div>
+      <div class="step">3️⃣ 點左側「<b>Capabilities</b>」，確認 <b>Memory</b> 的兩個開關（Search and reference chats／Generate memory from chat history）依你的需求開啟，Tool access mode 保持預設的 <b>Load tools when needed</b> 即可。</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:8px">⚠️ 全域指示會套用到所有 Cowork 對話，包括排程任務和 Dispatch 派遣的任務，建議只寫通用性高的規則，不要寫太特定的內容。</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// 題庫：情境取自書中第 2 章「設定你的 Cowork」實際設定項目
+const QUESTIONS = [
+  {
+    q: '你想讓 Claude 記住你之前對話中提過的工作背景，下次不用重複說明。你該去哪個設定分類？',
+    options: [
+      { key: 'a', label: 'General', hint: '個人檔案' },
+      { key: 'b', label: 'Capabilities', hint: '記憶與工具' },
+      { key: 'c', label: 'Connectors', hint: '連接外部服務' },
+    ],
+    a: 'b',
+    why: 'Capabilities 底下的 Memory 區塊有「Generate memory from chat history」開關，允許 Claude 從聊天紀錄自動學習你的偏好、工作背景並存成記憶。',
+  },
+  {
+    q: '你想讓 Claude 讀取並管理你的 Gmail 信件。這屬於哪一種 Connector？',
+    options: [
+      { key: 'a', label: 'Web Connector', hint: '雲端執行' },
+      { key: 'b', label: 'Desktop Connector', hint: '本機執行' },
+      { key: 'c', label: 'Personal Skill', hint: '個人技能' },
+    ],
+    a: 'a',
+    why: 'Gmail 透過 Google OAuth 連線，在 Anthropic 伺服器端執行，屬於 Web Connectors，不需要你的電腦保持開機。',
+  },
+  {
+    q: '你想讓 Claude 直接幫你截圖、點擊、操作 Mac 桌面上的 Finder 整理檔案。你需要開啟哪一個？',
+    options: [
+      { key: 'a', label: 'Control your Mac', hint: 'Desktop Connector' },
+      { key: 'b', label: 'Google Drive', hint: 'Web Connector' },
+      { key: 'c', label: 'theme-factory', hint: 'Personal Skill' },
+    ],
+    a: 'a',
+    why: '操作本機桌面（截圖、滑鼠點擊、鍵盤輸入）必須透過 Desktop Connectors，「Control your Mac」標示 DESKTOP，且必須在你的電腦上執行。',
+  },
+  {
+    q: '你常同時用到 5、6 種不同的 connector 工具，希望 Claude 一開始就準備好、不用等待載入，即使對話壓縮頻率變高也沒關係。該選 Tool access mode 的哪個選項？',
+    options: [
+      { key: 'a', label: 'Load tools when needed', hint: '預設選項' },
+      { key: 'b', label: 'Tools already loaded', hint: '預先全部載入' },
+      { key: 'c', label: 'Allow network egress', hint: '網路存取' },
+    ],
+    a: 'b',
+    why: '「Tools already loaded」會把所有已連接工具在對話開始時全部載入，Claude 可立即使用任何工具；代價是佔用較多上下文，對話壓縮較頻繁。',
+  },
+  {
+    q: '你想加一條規則「刪除任何檔案之前一定要先詢問我」，且希望這條規則對所有 Cowork 對話都生效，包括排程任務與用手機 Dispatch 派遣的任務。哪裡設定最合適？',
+    options: [
+      { key: 'a', label: 'Cowork 的 Global instructions', hint: '全域指示' },
+      { key: 'b', label: 'General 的 Notifications', hint: '通知設定' },
+      { key: 'c', label: 'Capabilities 的 Tool access mode', hint: '工具載入' },
+    ],
+    a: 'a',
+    why: '書中把「刪除任何檔案之前一定要先詢問我」列為 Global instructions 的安全規則範例，且明確說全域指示套用到所有 Cowork 對話，包括排程與 Dispatch 派遣的任務。',
+  },
+  {
+    q: '朋友對 Claude Cowork 很有興趣，你想給他一個免費體驗一週的機會，而且如果他之後訂閱，你還能拿到額外使用額度。這是什麼功能？',
+    options: [
+      { key: 'a', label: 'Guest pass', hint: '邀請碼' },
+      { key: 'b', label: 'Dispatch', hint: '手機派遣' },
+      { key: 'c', label: 'Import memory', hint: '匯入記憶' },
+    ],
+    a: 'a',
+    why: '每個帳號有 3 張 Guest pass，受邀者可免費試用 Claude Cowork 和 Claude Code 一週；若對方後來訂閱，你會獲得 $50 額外使用額度。',
+  },
+  {
+    q: '你人在外面，想用手機上的 Claude App，把一個任務派遣到家裡開著的桌上型電腦執行。你需要先確認哪個開關是開啟的？',
+    options: [
+      { key: 'a', label: 'Dispatch', hint: 'Beta' },
+      { key: 'b', label: 'Response completions', hint: '完成通知' },
+      { key: 'c', label: 'Allow network egress', hint: '網路存取' },
+    ],
+    a: 'a',
+    why: 'Dispatch（標示 Beta）讓你能透過手機上的 Claude app，把任務派遣到桌面電腦上執行；關閉時手機就無法派遣工作到這台電腦。',
+  },
+  {
+    q: '你希望 Claude 能查詢某個程式庫「最新版」的官方 API 文件，而且這個能力是內建、你關不掉的。它是？',
+    options: [
+      { key: 'a', label: 'context', hint: 'Built-in skill' },
+      { key: 'b', label: 'algorithmic-art', hint: 'Personal skill' },
+      { key: 'c', label: 'Context7', hint: 'Web Connector' },
+    ],
+    a: 'a',
+    why: 'Built-in skills 是 Claude 內建的核心技能，目前只有 schedule（排程任務）和 context（查詢程式庫或 API 最新文件）兩個，兩者都無法停用。',
+  },
+  {
+    q: '你想教 Claude 一套全新的「做法」——用 p5.js 畫生成藝術，之後打 /algorithmic-art 就能觸發套用。這比較接近 Skill 還是 Plugin？',
+    options: [
+      { key: 'a', label: 'Skill', hint: '教做法' },
+      { key: 'b', label: 'Plugin', hint: '給知識' },
+      { key: 'c', label: 'Connector', hint: '存取外部服務' },
+    ],
+    a: 'a',
+    why: '書中定義 Skills 是教 Claude 新的「做法」（如何做某件事），Plugins 則是給 Claude 新的「知識」（例如財務分析的專業知識）；algorithmic-art 正是 Personal skill 的實例。',
+  },
+  {
+    q: '你想讓 Claude 執行程式碼時能自動安裝套件、上網抓最新資料做進階分析，但你知道這件事有安全風險，想順便限制它只能存取特定網域。你該去哪裡設定？',
+    options: [
+      { key: 'a', label: 'Allow network egress', hint: 'Capabilities + Domain allowlist' },
+      { key: 'b', label: 'Add custom connector', hint: 'Connectors' },
+      { key: 'c', label: 'Guest pass', hint: 'Cowork' },
+    ],
+    a: 'a',
+    why: 'Allow network egress 讓 Claude 取得網路存取權限以安裝套件、進行進階分析；開啟後可透過 Domain allowlist 選擇沙盒能存取的網域範圍，書中特別提醒這伴隨安全風險。',
+  },
+];
+
+let idx = 0, score = 0, answered = false;
+
+const $ = id => document.getElementById(id);
+const scenarioEl = $('scenario'), feedbackEl = $('feedback'), choicesEl = $('choices');
+
+function render() {
+  answered = false;
+  const item = QUESTIONS[idx];
+  scenarioEl.innerHTML = '<span class="quote">情境：</span>' + item.q;
+  $('qnum').textContent = `第 ${idx + 1} / ${QUESTIONS.length} 題`;
+  $('score').textContent = `得分 ${score}`;
+  $('bar').style.width = (idx / QUESTIONS.length * 100) + '%';
+  feedbackEl.className = 'feedback';
+  feedbackEl.innerHTML = '';
+  $('next').disabled = true;
+
+  choicesEl.innerHTML = '';
+  item.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.dataset.pick = opt.key;
+    btn.innerHTML = opt.label + (opt.hint ? '<small>' + opt.hint + '</small>' : '');
+    btn.addEventListener('click', () => onPick(btn, opt.key));
+    choicesEl.appendChild(btn);
+  });
+}
+
+function onPick(btn, pick) {
+  if (answered) return;
+  answered = true;
+  const item = QUESTIONS[idx];
+  const correct = pick === item.a;
+  if (correct) score++;
+
+  const buttons = [...choicesEl.querySelectorAll('.choice')];
+  const correctOpt = item.options.find(o => o.key === item.a);
+  buttons.forEach(b => {
+    b.disabled = true;
+    if (b.dataset.pick === item.a) b.classList.add('correct');
+    else if (b.dataset.pick === pick) b.classList.add('wrong');
+  });
+
+  feedbackEl.className = 'feedback show ' + (correct ? 'good' : 'bad');
+  feedbackEl.innerHTML =
+    (correct ? '✅ 答對了！' : '❌ 再想想～') +
+    ' 正確答案是 <b class="ans">' + correctOpt.label + '</b>。<br>' + item.why;
+  $('score').textContent = `得分 ${score}`;
+  $('next').disabled = false;
+}
+
+$('next').addEventListener('click', () => {
+  idx++;
+  if (idx < QUESTIONS.length) { render(); }
+  else { showResult(); }
+});
+
+function showResult() {
+  $('bar').style.width = '100%';
+  document.querySelector('#quiz .card').style.display = 'none';
+  const r = $('result'); r.classList.add('show');
+  $('finalScore').textContent = score + ' / ' + QUESTIONS.length;
+  let msg;
+  if (score === QUESTIONS.length) msg = '滿分！Cowork 的設定頁面你已經摸得一清二楚了 🎉';
+  else if (score >= 7) msg = '很不錯！大方向都抓對了，回頭看看答錯那幾題的解釋就更穩。';
+  else msg = '再練一次吧——重點口訣：General 個人化、Capabilities 記憶與工具、Connectors 接外部、Cowork 全域指示。';
+  $('finalMsg').textContent = msg;
+}
+
+$('retry').addEventListener('click', () => {
+  idx = 0; score = 0;
+  $('result').classList.remove('show');
+  document.querySelector('#quiz .card').style.display = 'block';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

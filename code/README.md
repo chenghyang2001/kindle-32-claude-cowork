@@ -11,12 +11,23 @@
 
 ## 章節進度
 
-| 章 | 主題 | 練習類型 | 狀態 |
+| 章 | 主題 | 練習類型（10 題／章） | 狀態 |
 | ---- | ------ | -------- | ------ |
-| ch01 | 認識 Claude Cowork（三種模式 Chat/Cowork/Code） | 情境分類互動題 | ✅ |
-| ch02 | 設定你的 Cowork | — | ⏳ |
-| ch03 | Cowork 的日常操作 | — | ⏳ |
-| … | （依互動進度一章一章往下） | | |
+| ch01 | 認識 Claude Cowork | 三種模式 Chat/Cowork/Code 情境分類 | ✅ |
+| ch02 | 設定你的 Cowork | 「這個需求該怎麼設定」情境判斷 | ✅ |
+| ch03 | Cowork 的日常操作 | 六大功能（Task/Projects/Scheduled/Dispatch/Ideas/Search）配對 | ✅ |
+| ch04 | 生活管理實戰 | 委派方式 / 自動載入工具 / 權限判斷 | ✅ |
+| ch05 | 行程與通訊實戰 | 該接哪個 Connector（Calendar/Gmail/iMessages） | ✅ |
+| ch06 | 研究與學習實戰 | 三範例（網搜報告／論文摘要／學習筆記）分類 | ✅ |
+| ch07 | 辦公文件製作實戰 | 該用哪個 Skill（pptx/xlsx/doc-coauthoring） | ✅ |
+| ch08 | 資料分析實戰 | 資料流階段（清理／分析／視覺化）分類 | ✅ |
+| ch09 | 設計與創意實戰 | 該用哪個工具（Canva/algorithmic-art/canvas-design） | ✅ |
+| ch10 | 工程與開發實戰 | 開發任務分類（Code Review／MCP／架構文件） | ✅ |
+| ch11 | 工作效率實戰 | 該接哪個資料來源／工具 | ✅ |
+| ch12 | 排程與自動化 | 排程 vs Dispatch vs 手動 判斷 | ✅ |
+| ch13 | 進階自訂與品牌設計 | 該用哪個功能（skill-creator/brand-guidelines/Canva） | ✅ |
+
+> 全 13 章完成。ch00（AI Agent 的時代，導論章）尚未製作，需要再補可再說。
 
 ## 設計原則
 

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第11章 工作效率實戰 — 互動練習</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --panel2: #172033;
+    --ink: #e2e8f0; --muted: #94a3b8; --line: #334155;
+    --chat: #38bdf8; --cowork: #a78bfa; --code: #34d399;
+    --ok: #22c55e; --bad: #f87171;
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Segoe UI', system-ui, "Microsoft JhengHei", sans-serif;
+    line-height: 1.7; padding: 24px 16px 80px;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: .02em; }
+  header .sub { color: var(--muted); margin-top: 4px; font-size: .9rem; }
+  .book { color: var(--cowork); }
+
+  section { margin-top: 28px; }
+  h2 { font-size: 1.1rem; margin-bottom: 12px; border-left: 4px solid var(--cowork);
+       padding-left: 10px; }
+
+  /* 三個範例卡 */
+  .modes { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .mode { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+          padding: 14px; }
+  .mode h3 { font-size: 1rem; margin-bottom: 4px; }
+  .mode.cal h3 { color: var(--chat); }
+  .mode.desktop h3 { color: var(--cowork); }
+  .mode.skill h3 { color: var(--code); }
+  .mode p { font-size: .82rem; color: var(--muted); }
+  .mode .tag { font-size: .72rem; color: var(--ink); opacity: .85; }
+
+  details { background: var(--panel2); border: 1px solid var(--line);
+            border-radius: 10px; padding: 10px 14px; margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .82rem; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  th { background: rgba(167,139,250,.12); }
+  .overflow { overflow-x: auto; }
+
+  /* 練習 */
+  #quiz .card { background: var(--panel); border: 1px solid var(--line);
+                border-radius: 12px; padding: 18px; }
+  .progress { height: 8px; background: var(--panel2); border-radius: 99px;
+              overflow: hidden; margin-bottom: 14px; }
+  .progress > i { display: block; height: 100%; width: 0;
+                  background: linear-gradient(90deg,var(--chat),var(--cowork)); transition: width .3s; }
+  .qmeta { display: flex; justify-content: space-between; font-size: .8rem;
+           color: var(--muted); margin-bottom: 8px; }
+  .scenario { font-size: 1.05rem; font-weight: 600; margin: 6px 0 16px;
+              background: var(--panel2); border-radius: 8px; padding: 14px; }
+  .scenario .quote { color: var(--muted); font-weight: 400; font-size: .85rem; display:block; margin-bottom:6px;}
+  .choices { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .choice { padding: 12px; border-radius: 10px; border: 1px solid var(--line);
+            background: transparent; color: var(--ink); font-size: .95rem; font-weight: 700;
+            cursor: pointer; transition: all .15s; }
+  .choice small { display:block; font-weight:400; font-size:.72rem; color:var(--muted); margin-top:2px;}
+  .choice:hover:not(:disabled) { border-color: var(--cowork); background: rgba(167,139,250,.08); }
+  .choice:disabled { cursor: default; opacity: .55; }
+  .choice.correct { border-color: var(--ok); background: rgba(34,197,94,.16); opacity:1; }
+  .choice.wrong { border-color: var(--bad); background: rgba(248,113,113,.16); opacity:1; }
+
+  .feedback { margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+              font-size: .9rem; display: none; }
+  .feedback.show { display: block; }
+  .feedback.good { background: rgba(34,197,94,.12); border: 1px solid var(--ok); }
+  .feedback.bad  { background: rgba(248,113,113,.12); border: 1px solid var(--bad); }
+  .feedback b.ans-cal { color: var(--chat); }
+  .feedback b.ans-desktop { color: var(--cowork); }
+  .feedback b.ans-skill { color: var(--code); }
+
+  .nav { margin-top: 16px; text-align: right; }
+  button.next { background: var(--cowork); color: #1a1030; border: none; font-weight: 700;
+                padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: .95rem; }
+  button.next:disabled { opacity: .4; cursor: default; }
+
+  /* 結果 */
+  #result { display: none; text-align: center; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 12px; padding: 30px 18px; }
+  #result.show { display: block; }
+  #result .score { font-size: 2.4rem; font-weight: 800; color: var(--cowork); }
+  #result .msg { color: var(--muted); margin: 8px 0 18px; }
+  button.retry { background: transparent; color: var(--ink); border: 1px solid var(--line);
+                 padding: 9px 18px; border-radius: 8px; cursor: pointer; }
+
+  .demo { background: var(--panel2); border: 1px dashed var(--cowork); border-radius: 12px;
+          padding: 16px; margin-top: 14px; }
+  .demo code { background: #0b1220; padding: 2px 7px; border-radius: 5px; color: #e9d5ff;
+               font-size: .85rem; display: inline-block; margin-top: 4px; line-height: 1.5; }
+  .demo .step { margin: 8px 0; }
+
+  @media (max-width: 640px) {
+    .modes { grid-template-columns: 1fr; }
+    .choices { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>第 11 章 · 工作效率實戰</h1>
+    <div class="sub">互動練習｜出自《<span class="book">Claude Cowork：31 個超好用範例實作</span>》· 胡嘉璽著</div>
+  </header>
+
+  <!-- ── 重點回顧 ── -->
+  <section>
+    <h2>① 先回顧：三個實戰範例</h2>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+      本章用三個範例，把「每天/每週都要重複做的行政庶務」壓縮到幾分鐘內完成：
+    </p>
+    <div class="modes">
+      <div class="mode cal">
+        <h3>範例22 · 每日簡報</h3>
+        <p class="tag">Google Calendar + Gmail<br>Web Connector</p>
+        <p>把「開行事曆、掃郵件、想待辦」三件事合成一個任務，產生結構化 Word 簡報，可排程每天自動執行。</p>
+      </div>
+      <div class="mode desktop">
+        <h3>範例23 · 會議記錄追蹤</h3>
+        <p class="tag">Desktop Commander<br>讀本機檔案</p>
+        <p>讀取桌面上的會議記錄（.md/.txt/.docx），自動提取行動項目、標注已逾期或即將到期，產生追蹤報告。</p>
+      </div>
+      <div class="mode skill">
+        <h3>範例24 · 團隊週報</h3>
+        <p class="tag">internal-comms Skill<br>企業溝通格式</p>
+        <p>用 /internal-comms 載入內建 Skill，把條列素材轉化成 3P（Progress/Plans/Problems）格式的正式週報。</p>
+      </div>
+    </div>
+
+    <details>
+      <summary>展開書中的三個範例完整比較表</summary>
+      <div class="overflow">
+      <table>
+        <tr><th>比較項目</th><th>範例22 每日簡報</th><th>範例23 會議記錄追蹤</th><th>範例24 團隊週報</th></tr>
+        <tr><td>核心工具</td><td>Google Calendar + Gmail Connector</td><td>Desktop Commander</td><td>internal-comms Skill</td></tr>
+        <tr><td>資料來源</td><td>雲端服務（行事曆／信箱）</td><td>本機檔案（桌面 .md）</td><td>使用者提供的條列素材</td></tr>
+        <tr><td>輸出格式</td><td>Word 每日簡報</td><td>Word 會議追蹤報告</td><td>Word 團隊週報（3P 格式）</td></tr>
+        <tr><td>關鍵能力</td><td>自動調整搜尋策略（is:important 沒結果就放寬條件）、平行處理</td><td>時效分析：自動算距截止日期天數，分即將到期／本週到期／正常三級</td><td>只給「事實」，Skill 負責轉化成專業語氣的正式報告</td></tr>
+        <tr><td>可排程</td><td>可（schedule Skill，每工作日早上 8:00 自動執行）</td><td>建議每次開會前重新產生一份</td><td>可依週期排程（如每週五）</td></tr>
+        <tr><td>適合場景</td><td>上班族每天開工前的行程＋郵件總覽</td><td>開完會後追蹤誰要做什麼、什麼時候到期</td><td>每週固定要交的狀態報告／週報</td></tr>
+      </table>
+      </div>
+      <p style="margin-top:10px;font-size:.85rem;color:var(--muted)">
+        一句話：<b style="color:var(--chat)">範例22 靠 Calendar+Gmail</b> 拼出你的一天、<b style="color:var(--cowork)">範例23 靠 Desktop Commander</b> 讀懂你桌面上的會議記錄、<b style="color:var(--code)">範例24 靠 internal-comms Skill</b> 把你的隨手筆記變成正式公文。
+      </p>
+    </details>
+  </section>
+
+  <!-- ── 練習 ── -->
+  <section>
+    <h2>② 動手練習：這個任務該接哪個資料來源／工具？</h2>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+      讀情境，點你判斷的資料來源／工具，會立刻告訴你對不對＋為什麼。共 10 題。
+    </p>
+
+    <div id="quiz">
+      <div class="card">
+        <div class="progress"><i id="bar"></i></div>
+        <div class="qmeta"><span id="qnum">第 1 / 10 題</span><span id="score">得分 0</span></div>
+        <div class="scenario" id="scenario"></div>
+        <div class="choices">
+          <button class="choice" data-pick="cal">Calendar+Gmail<small>Web Connector</small></button>
+          <button class="choice" data-pick="desktop">Desktop Commander<small>讀本機檔案</small></button>
+          <button class="choice" data-pick="skill">internal-comms<small>企業格式 Skill</small></button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="nav"><button class="next" id="next" disabled>下一題 →</button></div>
+      </div>
+
+      <div id="result">
+        <div class="score" id="finalScore"></div>
+        <div class="msg" id="finalMsg"></div>
+        <button class="retry" id="retry">再練一次</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 真實 demo ── -->
+  <section>
+    <h2>③ 接回真實操作：到 Cowork 做一次 demo</h2>
+    <div class="demo">
+      <p>光做題不夠，打開 <b>Claude Desktop</b> → 切到 <b class="book">Cowork</b> 分頁，把書中範例22最經典的任務貼進去實際跑一次：</p>
+      <div class="step">1️⃣ 在任務輸入區貼上：<br><code>請幫我整合今天的 Google Calendar 行程和 Gmail 重要郵件，產生一份「每日簡報」。簡報需包含：1) 今日行程總覽（時間、會議名稱、地點）2) 重要郵件摘要（寄件者、主旨、關鍵內容）3) 今日待辦事項建議。最後產生一份 Word 文件作為今日簡報。</code></div>
+      <div class="step">2️⃣ 按 <b>Let's go →</b>，觀察右側 Progress 面板跑完四個步驟：確認 Calendar/Gmail 連接工具、平行抓取行程與郵件、整理並產生 Word 文件、驗證內容完整性——全程不到兩分鐘。</div>
+      <div class="step">3️⃣ 打開產生的 docx 看完後，直接在同一個任務底下 Reply：<br><code>請幫我把這個每日簡報任務設定為排程，每個工作日早上 8:00 自動執行。</code><br>感受一下「委派一次、每天自動」和「每天自己重打一次」的根本差別。</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:8px">⚠️ Cowork 目前是研究預覽版（research preview），第一次連接 Google Calendar / Gmail 會請你確認授權，放心它每步都會問過你。</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// 題庫：情境取自書中範例22（每日簡報）、範例23（會議記錄追蹤）、範例24（internal-comms 週報）
+const QUESTIONS = [
+  { q: '請幫我整合今天的 Google Calendar 行程和 Gmail 重要郵件，產生一份「每日簡報」的 Word 文件，包含行程總覽、郵件摘要、待辦建議。', a: 'cal',
+    why: '這正是書中範例22的原始任務描述，明確指定用 Google Calendar 和 Gmail 兩個 Web Connector 作為資料來源，整合成一份簡報。' },
+  { q: '我桌面上有一份「會議記錄_2026-04-07_產品規劃會議.md」，請幫我讀取後提取所有行動項目、標注已逾期或即將到期的項目，產生追蹤報告。', a: 'desktop',
+    why: '會議記錄放在本機桌面，不是雲端服務，Cowork 改用 Desktop Commander 的 read_file 功能讀取，而不是 Web Connector——這是範例23和範例22最大的不同之處。' },
+  { q: '請使用 /internal-comms skill 幫我撰寫一份團隊週報，我是專案經理，用 3P 格式呈現本週完成事項、下週計畫和風險。', a: 'skill',
+    why: '/internal-comms 是明確指定要載入的 Skill 名稱，3P（Progress/Plans/Problems）正是這個 Skill 內建最常用的狀態報告格式。' },
+  { q: '我想讓 Cowork 每個工作日早上 8 點自動幫我彙整當天的行程和過去 24 小時的重要郵件，不用我手動觸發。', a: 'cal',
+    why: '雖然「排程」本身是靠 schedule Skill 建立的 create_scheduled_task，但每次執行時實際抓取的資料來源仍是 Google Calendar 和 Gmail，屬於範例22排程化後的延伸應用。' },
+  { q: '我要給主管的「狀態報告」，格式必須符合公司內部溝通規範、語氣要專業，但我手上只有幾條零散的進度筆記，還沒整理成正式文字。', a: 'skill',
+    why: '這正是 internal-comms Skill 的關鍵技巧：你只需要提供「事實」（條列素材），Cowork 會根據 Skill 的格式規範把事實轉化為專業的報告文字，不需要你自己先寫好。' },
+  { q: '這份逐字稿型的會議記錄存在我的電腦裡，不是放在 Google Drive 或任何雲端服務上，麻煩幫我讀取並分析裡面誰要做什麼、什麼時候要完成。', a: 'desktop',
+    why: '書中特別說明：因為會議記錄放在本機桌面，需要透過 Desktop Commander 的 read_file 功能來讀取，這也說明 Cowork 會根據任務需求自動選擇適合的工具（本機用 Desktop Commander，雲端服務用 Web Connector）。' },
+  { q: '如果今天 Google Calendar 上沒有任何行程，Gmail 也沒有新郵件，Cowork 產生的每日簡報大概會寫成什麼樣子？', a: 'cal',
+    why: '書中提到 Cowork 不會產生空白報告，而是會在待辦建議中主動提示「今日行程較為空閒，建議利用這段時間處理積壓的工作項目」——這種智慧判斷仍是建立在 Calendar/Gmail 這兩個資料來源上，即使沒有新資料也有實質內容。' },
+  { q: '請用內建的企業溝通格式，把我這幾條進度筆記轉換成「團隊公告」，宣布我們要啟動一個新專案。', a: 'skill',
+    why: '「團隊公告（Team Announcement）」是 internal-comms Skill 涵蓋的四種文件類型之一，專門處理組織變動、專案啟動等需要全員知悉的通知。' },
+  { q: '會議記錄裡某個行動項目只寫著「陳大偉負責 AI 的事情」，我想請 Cowork 讀這份記錄、抓出每個人的截止日期並標記逾期風險。', a: 'desktop',
+    why: '書中特別提醒：會議記錄的品質直接影響分析品質，寫法太模糊 Cowork 就無法提取具體截止日期。但無論記錄寫得好不好，這仍是讀取本機檔案的任務，屬於範例23 Desktop Commander 的範疇。' },
+  { q: '幫我把今天的行程和未讀信件整理成一份文件，讓我出門前先看過今天的重點，5 分鐘內看完就好。', a: 'cal',
+    why: '涉及行事曆和郵件兩個資料來源的整合，是範例22 每日簡報的典型任務，靠 Google Calendar 和 Gmail 兩個 Connector 完成。' },
+];
+
+const LABEL = { cal: 'Calendar+Gmail（Web Connector）', desktop: 'Desktop Commander（讀本機檔）', skill: 'internal-comms（Skill）' };
+let idx = 0, score = 0, answered = false;
+
+const $ = id => document.getElementById(id);
+const scenarioEl = $('scenario'), feedbackEl = $('feedback');
+const choices = [...document.querySelectorAll('.choice')];
+
+function render() {
+  answered = false;
+  const item = QUESTIONS[idx];
+  scenarioEl.innerHTML = '<span class="quote">情境：</span>' + item.q;
+  $('qnum').textContent = `第 ${idx + 1} / ${QUESTIONS.length} 題`;
+  $('score').textContent = `得分 ${score}`;
+  $('bar').style.width = (idx / QUESTIONS.length * 100) + '%';
+  feedbackEl.className = 'feedback';
+  feedbackEl.innerHTML = '';
+  $('next').disabled = true;
+  choices.forEach(c => { c.disabled = false; c.className = 'choice'; });
+}
+
+choices.forEach(c => c.addEventListener('click', () => {
+  if (answered) return;
+  answered = true;
+  const pick = c.dataset.pick;
+  const item = QUESTIONS[idx];
+  const correct = pick === item.a;
+  if (correct) score++;
+  choices.forEach(x => {
+    x.disabled = true;
+    if (x.dataset.pick === item.a) x.classList.add('correct');
+    else if (x.dataset.pick === pick) x.classList.add('wrong');
+  });
+  feedbackEl.className = 'feedback show ' + (correct ? 'good' : 'bad');
+  feedbackEl.innerHTML =
+    (correct ? '✅ 答對了！' : '❌ 再想想～') +
+    ' 正確答案是 <b class="ans-' + item.a + '">' + LABEL[item.a] + '</b>。<br>' + item.why;
+  $('score').textContent = `得分 ${score}`;
+  $('next').disabled = false;
+}));
+
+$('next').addEventListener('click', () => {
+  idx++;
+  if (idx < QUESTIONS.length) { render(); }
+  else { showResult(); }
+});
+
+function showResult() {
+  $('bar').style.width = '100%';
+  document.querySelector('#quiz .card').style.display = 'none';
+  const r = $('result'); r.classList.add('show');
+  $('finalScore').textContent = score + ' / ' + QUESTIONS.length;
+  let msg;
+  if (score === QUESTIONS.length) msg = '滿分！你已經完全分得清 Calendar+Gmail / Desktop Commander / internal-comms 三種工作效率工具了 🎉';
+  else if (score >= 7) msg = '很不錯！大方向都抓對了，回頭看看答錯那幾題的解釋就更穩。';
+  else msg = '再練一次吧——重點口訣：雲端資料用 Calendar+Gmail、本機檔案用 Desktop Commander、正式文件格式用 internal-comms Skill。';
+  $('finalMsg').textContent = msg;
+}
+
+$('retry').addEventListener('click', () => {
+  idx = 0; score = 0;
+  $('result').classList.remove('show');
+  document.querySelector('#quiz .card').style.display = 'block';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
