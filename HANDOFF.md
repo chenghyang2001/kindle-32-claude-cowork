@@ -28,10 +28,11 @@
 | **併入 mermaid-viewer 第 18 tab** | ✅ HTTP 200 | <https://chenghyang2001.github.io/mermaid-viewer/> |
 | NLM artifact 全繁中章節命名 | ✅ | audio 15/15、slide 14/14、video 15/15 completed |
 | 影片 artifact ID 對照表 | ✅ | `.nlm-pipeline/chapter_video_tasks.tsv`（14 支 video ID↔繁中章名） |
-| **13 章互動練習網頁** | ✅ HTTP 200 | <https://chenghyang2001.github.io/kindle-32-practice/> |
+| **15 張互動練習網頁**（導論+13章+加碼） | ✅ HTTP 200 | <https://chenghyang2001.github.io/kindle-32-practice/> |
 | **練習併入 mermaid-viewer 第 19 tab** | ✅ | 「Kindle 32｜Cowork 練習」（綠色 tab） |
+| **練習頁字體放大/縮小鈕**（14→15 頁，跨章記憶） | ✅ | 每頁右上 A−/重設/A+ |
 
-> 2026-07-08 新增：`code/` 目錄放全書 13 章「互動練習網頁」（每章 10 題即時對錯＋解釋＋計分＋接回 Cowork demo），由 12 個並行 subagent 依各章 PDF 產出，總覽入口 `code/index.html`。已發布到 public repo `chenghyang2001/kindle-32-practice` 的 GitHub Pages，並嵌進 mermaid-viewer 第 19 tab。
+> 2026-07-08 新增（**15 張互動練習全數完成**）：`code/` 目錄放導論 ch00 + 全 13 章（ch01~ch13）+ 1 張加碼綜合（`bonus/` Code vs Cowork 任務分流），每頁 10 題即時對錯＋解釋＋計分＋接回 Cowork demo、右上角字體大小鈕（localStorage 跨章記憶）。13 章由 12 個並行 subagent 依各章 PDF 產出、ch00 與 bonus 另補。總覽入口 `code/index.html`（順序 ch00→ch13→加碼）。已發布到 public repo `chenghyang2001/kindle-32-practice` 的 GitHub Pages，並嵌進 mermaid-viewer 第 19 tab。
 
 ### ⏳ 可選待辦（本 repo 開新 session 主要要接的事）
 
@@ -92,9 +93,10 @@ kindle-32-claude-cowork/           ← 本 repo 根目錄（已 git init，branc
 ├── HANDOFF.md                     ← 本文件
 ├── README.md                      ← 書籍與 pipeline 說明
 ├── .gitignore                     ← 排除 screenshots/、PDF/、Python 快取、垃圾檔
-├── code/                          ← 全書 13 章互動練習網頁（2026-07-08 新增）
+├── code/                          ← 15 張互動練習網頁（導論+13章+加碼，2026-07-08 新增）
 │   ├── index.html                 ← 練習總覽入口（13 章卡片，點了開對應練習）
-│   ├── ch01/ … ch13/index.html    ← 各章互動練習（單檔自足、離線可開）
+│   ├── ch00/ … ch13/index.html    ← 導論+各章互動練習（單檔自足、離線可開）
+│   ├── bonus/index.html           ← 加碼：Code vs Cowork 任務分流
 │   ├── README.md / BUILD-GUIDE.md ← 章節進度表 / subagent 建置規範
 │   └── （已發布至 GitHub Pages repo chenghyang2001/kindle-32-practice）
 ├── PDF/                           ← 全書＋分章 PDF 便利複本（.gitignore；正本在 .nlm-pipeline/）
