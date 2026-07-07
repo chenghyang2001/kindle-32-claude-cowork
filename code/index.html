@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Cowork — 章節互動練習總覽</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --panel2: #172033;
+    --ink: #e2e8f0; --muted: #94a3b8; --line: #334155; --accent: #a78bfa;
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Segoe UI', system-ui, "Microsoft JhengHei", sans-serif;
+    line-height: 1.6; padding: 32px 18px 80px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 8px; }
+  header h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: .02em; }
+  header .book { color: var(--accent); }
+  header .sub { color: var(--muted); font-size: .92rem; margin-top: 6px; }
+  header .how { color: var(--muted); font-size: .82rem; margin-top: 10px;
+               background: var(--panel2); border: 1px solid var(--line);
+               border-radius: 8px; padding: 8px 14px; display: inline-block; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 14px; margin-top: 28px; }
+  a.card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; transition: all .16s; position: relative; overflow: hidden;
+  }
+  a.card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--accent); opacity: .0; transition: opacity .16s;
+  }
+  a.card:hover { border-color: var(--accent); transform: translateY(-2px);
+                 background: #22304a; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+  a.card:hover::before { opacity: 1; }
+
+  .num { font-size: .72rem; font-weight: 700; color: var(--accent);
+         letter-spacing: .08em; }
+  .title { font-size: 1.08rem; font-weight: 700; margin: 4px 0 8px; }
+  .type { font-size: .82rem; color: var(--muted); }
+  .go { margin-top: 12px; font-size: .8rem; color: var(--accent); font-weight: 600; }
+
+  footer { text-align: center; color: var(--muted); font-size: .78rem; margin-top: 34px;
+           line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>《<span class="book">Claude Cowork</span>》章節互動練習</h1>
+    <div class="sub">31 個超好用範例實作 · 胡嘉璽著｜全書 13 章 · 每章 10 題即時對錯練習</div>
+    <div class="how">👉 點任一章卡片，開啟該章的互動練習（讀重點 → 做題目 → 接回真實 demo）</div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>
+    每章練習皆為單檔、離線可開；題目取自各章書中實際範例。<br>
+    也可直接開啟各資料夾下的 <code>index.html</code>。
+  </footer>
+</div>
+
+<script>
+const CHAPTERS = [
+  { n: 1,  title: '認識 Claude Cowork',     type: '三種模式 Chat / Cowork / Code 情境分類' },
+  { n: 2,  title: '設定你的 Cowork',        type: '「這個需求該怎麼設定」情境判斷' },
+  { n: 3,  title: 'Cowork 的日常操作',      type: '六大功能配對（Task/Projects/Scheduled…）' },
+  { n: 4,  title: '生活管理實戰',            type: '委派方式 / 自動載入工具 / 權限判斷' },
+  { n: 5,  title: '行程與通訊實戰',          type: '該接哪個 Connector（Calendar/Gmail/iMessages）' },
+  { n: 6,  title: '研究與學習實戰',          type: '三範例分類（網搜報告／論文摘要／學習筆記）' },
+  { n: 7,  title: '辦公文件製作實戰',        type: '該用哪個 Skill（pptx/xlsx/doc-coauthoring）' },
+  { n: 8,  title: '資料分析實戰',            type: '資料流階段（清理／分析／視覺化）' },
+  { n: 9,  title: '設計與創意實戰',          type: '該用哪個工具（Canva/algorithmic-art/canvas-design）' },
+  { n: 10, title: '工程與開發實戰',          type: '開發任務分類（Code Review／MCP／架構文件）' },
+  { n: 11, title: '工作效率實戰',            type: '該接哪個資料來源／工具' },
+  { n: 12, title: '排程與自動化',            type: '排程 vs Dispatch vs 手動 判斷' },
+  { n: 13, title: '進階自訂與品牌設計',      type: '該用哪個功能（skill-creator/brand-guidelines/Canva）' },
+];
+
+const grid = document.getElementById('grid');
+CHAPTERS.forEach(c => {
+  const pad = String(c.n).padStart(2, '0');
+  const a = document.createElement('a');
+  a.className = 'card';
+  a.href = `ch${pad}/index.html`;
+  a.innerHTML =
+    `<div class="num">第 ${pad} 章</div>` +
+    `<div class="title">${c.title}</div>` +
+    `<div class="type">${c.type}</div>` +
+    `<div class="go">開始練習 →</div>`;
+  grid.appendChild(a);
+});
+</script>
+</body>
+</html>
