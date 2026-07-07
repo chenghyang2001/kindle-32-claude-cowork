@@ -27,7 +27,9 @@
 | ch12 | 排程與自動化 | 排程 vs Dispatch vs 手動 判斷 | ✅ |
 | ch13 | 進階自訂與品牌設計 | 該用哪個功能（skill-creator/brand-guidelines/Canva） | ✅ |
 
-> 全 13 章完成。ch00（AI Agent 的時代，導論章）尚未製作，需要再補可再說。
+| 加碼 | Code vs Cowork 任務分流 | 速查表 + 「該用 Code 還是 Cowork」二選一（`bonus/`） | ✅ |
+
+> 全 13 章 + 1 加碼綜合完成。ch00（AI Agent 的時代，導論章）尚未製作，需要再補可再說。
 
 ## 設計原則
 

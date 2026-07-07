@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加碼 Code vs Cowork 任務分流 — 互動練習</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --panel2: #172033;
+    --ink: #e2e8f0; --muted: #94a3b8; --line: #334155;
+    --code: #34d399; --cowork: #a78bfa;
+    --ok: #22c55e; --bad: #f87171;
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Segoe UI', system-ui, "Microsoft JhengHei", sans-serif;
+    line-height: 1.7; padding: 24px 16px 80px;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: .02em; }
+  header .sub { color: var(--muted); margin-top: 4px; font-size: .9rem; }
+  .kw-code { color: var(--code); font-weight: 700; }
+  .kw-cowork { color: var(--cowork); font-weight: 700; }
+
+  section { margin-top: 28px; }
+  h2 { font-size: 1.1rem; margin-bottom: 12px; border-left: 4px solid var(--cowork);
+       padding-left: 10px; }
+
+  /* 速查表 */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .col { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .col.code { border-top: 3px solid var(--code); }
+  .col.cowork { border-top: 3px solid var(--cowork); }
+  .col h3 { font-size: 1rem; margin-bottom: 8px; }
+  .col.code h3 { color: var(--code); }
+  .col.cowork h3 { color: var(--cowork); }
+  .col ul { list-style: none; }
+  .col li { font-size: .84rem; color: var(--ink); padding: 4px 0 4px 16px; position: relative; }
+  .col li::before { content: "›"; position: absolute; left: 2px; color: var(--muted); }
+
+  details { background: var(--panel2); border: 1px solid var(--line);
+            border-radius: 10px; padding: 10px 14px; margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .diff { margin-top: 8px; font-size: .86rem; }
+  .diff b { color: var(--cowork); }
+
+  /* 練習 */
+  #quiz .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  .progress { height: 8px; background: var(--panel2); border-radius: 99px; overflow: hidden; margin-bottom: 14px; }
+  .progress > i { display: block; height: 100%; width: 0;
+                  background: linear-gradient(90deg,var(--code),var(--cowork)); transition: width .3s; }
+  .qmeta { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); margin-bottom: 8px; }
+  .scenario { font-size: 1.05rem; font-weight: 600; margin: 6px 0 16px;
+              background: var(--panel2); border-radius: 8px; padding: 14px; }
+  .scenario .quote { color: var(--muted); font-weight: 400; font-size: .85rem; display:block; margin-bottom:6px;}
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .choice { padding: 14px; border-radius: 10px; border: 1px solid var(--line);
+            background: transparent; color: var(--ink); font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: all .15s; }
+  .choice small { display:block; font-weight:400; font-size:.74rem; color:var(--muted); margin-top:3px;}
+  .choice:hover:not(:disabled) { border-color: var(--cowork); background: rgba(167,139,250,.08); }
+  .choice:disabled { cursor: default; opacity: .55; }
+  .choice.correct { border-color: var(--ok); background: rgba(34,197,94,.16); opacity:1; }
+  .choice.wrong { border-color: var(--bad); background: rgba(248,113,113,.16); opacity:1; }
+
+  .feedback { margin-top: 14px; padding: 12px 14px; border-radius: 10px; font-size: .9rem; display: none; }
+  .feedback.show { display: block; }
+  .feedback.good { background: rgba(34,197,94,.12); border: 1px solid var(--ok); }
+  .feedback.bad  { background: rgba(248,113,113,.12); border: 1px solid var(--bad); }
+  .feedback b.ans-code { color: var(--code); }
+  .feedback b.ans-cowork { color: var(--cowork); }
+
+  .nav { margin-top: 16px; text-align: right; }
+  button.next { background: var(--cowork); color: #1a1030; border: none; font-weight: 700;
+                padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: .95rem; }
+  button.next:disabled { opacity: .4; cursor: default; }
+
+  #result { display: none; text-align: center; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 12px; padding: 30px 18px; }
+  #result.show { display: block; }
+  #result .score { font-size: 2.4rem; font-weight: 800; color: var(--cowork); }
+  #result .msg { color: var(--muted); margin: 8px 0 18px; }
+  button.retry { background: transparent; color: var(--ink); border: 1px solid var(--line);
+                 padding: 9px 18px; border-radius: 8px; cursor: pointer; }
+
+  .demo { background: var(--panel2); border: 1px dashed var(--cowork); border-radius: 12px; padding: 16px; margin-top: 14px; }
+  .demo code { background: #0b1220; padding: 2px 7px; border-radius: 5px; color: #e9d5ff; font-size: .85rem; }
+  .demo .step { margin: 8px 0; }
+
+  @media (max-width: 640px) {
+    .split, .choices { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>加碼 · <span class="kw-code">Claude Code</span> vs <span class="kw-cowork">Claude Cowork</span> 任務分流</h1>
+    <div class="sub">你已經在用 Claude Code CLI——這張速查表幫你判斷哪些事該改丟給 Cowork。取材自全書 13 章範例。</div>
+  </header>
+
+  <!-- ① 速查表 -->
+  <section>
+    <h2>① 速查表：這件事該用誰？</h2>
+    <div class="split">
+      <div class="col code">
+        <h3>留在 Claude Code（CLI）</h3>
+        <ul>
+          <li>寫 / 改功能、修 bug、重構</li>
+          <li>跑測試、看 stack trace</li>
+          <li><code>git</code> 操作、開分支、管 worktree</li>
+          <li>直接讀寫 repo、執行 shell 指令</li>
+          <li>需要「動到程式碼本身」的一切</li>
+        </ul>
+      </div>
+      <div class="col cowork">
+        <h3>改用 Claude Cowork</h3>
+        <ul>
+          <li>整理本機檔案 / 照片 / 下載夾</li>
+          <li>接 Gmail / Calendar / iMessage 辦事</li>
+          <li>上網研究 → 產報告 / 摘要 / 筆記</li>
+          <li>產 PPT / Excel / Word / 海報</li>
+          <li>資料清理 → 分析 → 視覺化</li>
+          <li>每天 / 每週自動跑的例行事（排程）</li>
+          <li>Code Review checklist、架構文件、建 MCP</li>
+        </ul>
+      </div>
+    </div>
+
+    <details>
+      <summary>三個 Cowork 才有、CLI 給不了的決定性差異</summary>
+      <div class="diff">
+        <p>1. <b>排程（Scheduled）</b>：設「每天 8:00 自動彙整昨天新聞」——CLI 不會自己醒來跑。</p>
+        <p>2. <b>Connector 直連</b>：Gmail / Calendar / Drive / iMessage 直接讀寫，不必自己串 API。</p>
+        <p>3. <b>文件 Skill</b>：直接吐出 .pptx / .xlsx / .docx / 海報這類非程式產出。</p>
+        <p style="margin-top:8px;color:var(--muted)">口訣：<b style="color:var(--code)">寫程式碼本身用 Code</b>；<b style="color:var(--cowork)">圍繞程式碼的文件、審查、工具搭建，與一切非程式雜活用 Cowork</b>。</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ② 練習 -->
+  <section>
+    <h2>② 動手練習：這個任務丟給 Code 還是 Cowork？</h2>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+      假設你是開發者、平常用 Claude Code CLI。讀情境，選你會用哪個。共 10 題。
+    </p>
+
+    <div id="quiz">
+      <div class="card">
+        <div class="progress"><i id="bar"></i></div>
+        <div class="qmeta"><span id="qnum">第 1 / 10 題</span><span id="score">得分 0</span></div>
+        <div class="scenario" id="scenario"></div>
+        <div class="choices">
+          <button class="choice" data-pick="code">Claude Code<small>CLI · 動程式碼</small></button>
+          <button class="choice" data-pick="cowork">Claude Cowork<small>委派 · 非程式多步驟</small></button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="nav"><button class="next" id="next" disabled>下一題 →</button></div>
+      </div>
+
+      <div id="result">
+        <div class="score" id="finalScore"></div>
+        <div class="msg" id="finalMsg"></div>
+        <button class="retry" id="retry">再練一次</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ demo -->
+  <section>
+    <h2>③ 現在就試：把一件雜活丟給 Cowork</h2>
+    <div class="demo">
+      <p>挑一件你平常會在終端機外「手動做」的雜活，改用 Cowork 委派一次，體會差別。例如：</p>
+      <div class="step">📅 <code>幫我看這週 Google Calendar，把有衝突的會議列出來，並建議怎麼調整。</code>（接 Calendar Connector）</div>
+      <div class="step">📊 <code>讀這份 sales.csv，清理後產生一份含月趨勢圖與前十大客戶的互動報表。</code>（資料分析 Skill）</div>
+      <div class="step">📄 <code>從這個 repo 的原始碼，產生一份架構設計文件（含模組關係與資料流）。</code>（圍繞程式碼的文件——Cowork 比 CLI 更適合交付給人看的產物）</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:8px">做完你會發現：這些「不是寫程式、但要跑好幾步」的事，Cowork 一句委派就自己完成，正好補上 Claude Code 不碰的那一塊。</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// 任務分流題庫：情境 → 'code' 或 'cowork'，判準取自全書 13 章範例
+const QUESTIONS = [
+  { q: '修好這個 Python 專案的 NullPointer bug，然後 commit。', a: 'code',
+    why: '動到程式碼本身 + git commit，正是 Claude Code CLI 的主場。' },
+  { q: '把「下載」資料夾裡上百個檔案，按類型整理成子資料夾。', a: 'cowork',
+    why: 'ch04 招牌範例：Cowork 直接存取本機檔案、自主分類，不必你寫腳本。' },
+  { q: '每天早上 8 點，自動幫我彙整昨天的重要新聞摘要。', a: 'cowork',
+    why: '關鍵是「每天自動」——只有 Cowork 有 Scheduled 排程；CLI 不會自己醒來跑（ch12）。' },
+  { q: '在 GitHub repo 開一個新分支，實作 JWT 登入功能。', a: 'code',
+    why: '寫程式 + 開分支 + 管 Git，Code 模式最順。' },
+  { q: '彙整這週 Gmail 未讀信件，幫每封擬好回覆草稿。', a: 'cowork',
+    why: 'Cowork 有 Gmail Connector 直接讀寫信箱（ch05）；CLI 沒有這個能力。' },
+  { q: '把上週的會議筆記，做成一份給主管看的 PowerPoint 簡報。', a: 'cowork',
+    why: 'Cowork 的 pptx Skill 直接吐 .pptx（ch07）；產 Office 文件不是 CLI 的事。' },
+  { q: '重構 payment 模組並跑完整測試套件確認沒壞。', a: 'code',
+    why: '重構 + 跑測試 = 直接讀寫 repo、執行指令，用 Claude Code。' },
+  { q: '讀 sales.csv，清理後產出含月趨勢圖與前十大客戶的互動報表。', a: 'cowork',
+    why: 'ch08：一句委派跑完清理→分析→視覺化，屬 Cowork 的資料分析流程。' },
+  { q: '從現有程式碼庫，產生一份架構設計文件（模組關係、資料流）。', a: 'cowork',
+    why: 'ch10：寫程式碼本身用 Code，但「圍繞程式碼、交付給人看的文件」Cowork 更合適。' },
+  { q: '幫這個 PR 跑 lint、修掉所有 type error 再 push。', a: 'code',
+    why: 'lint / 修型別 / push 都要直接操作 repo 與指令，用 Claude Code CLI。' },
+];
+
+const LABEL = { code: 'Claude Code（CLI）', cowork: 'Claude Cowork（委派）' };
+let idx = 0, score = 0, answered = false;
+const $ = id => document.getElementById(id);
+const scenarioEl = $('scenario'), feedbackEl = $('feedback');
+const choices = [...document.querySelectorAll('.choice')];
+
+function render() {
+  answered = false;
+  const item = QUESTIONS[idx];
+  scenarioEl.innerHTML = '<span class="quote">情境：</span>' + item.q;
+  $('qnum').textContent = `第 ${idx + 1} / ${QUESTIONS.length} 題`;
+  $('score').textContent = `得分 ${score}`;
+  $('bar').style.width = (idx / QUESTIONS.length * 100) + '%';
+  feedbackEl.className = 'feedback';
+  feedbackEl.innerHTML = '';
+  $('next').disabled = true;
+  choices.forEach(c => { c.disabled = false; c.className = 'choice'; });
+}
+
+choices.forEach(c => c.addEventListener('click', () => {
+  if (answered) return;
+  answered = true;
+  const pick = c.dataset.pick;
+  const item = QUESTIONS[idx];
+  const correct = pick === item.a;
+  if (correct) score++;
+  choices.forEach(x => {
+    x.disabled = true;
+    if (x.dataset.pick === item.a) x.classList.add('correct');
+    else if (x.dataset.pick === pick) x.classList.add('wrong');
+  });
+  feedbackEl.className = 'feedback show ' + (correct ? 'good' : 'bad');
+  feedbackEl.innerHTML =
+    (correct ? '✅ 答對了！' : '❌ 再想想～') +
+    ' 正確答案是 <b class="ans-' + item.a + '">' + LABEL[item.a] + '</b>。<br>' + item.why;
+  $('score').textContent = `得分 ${score}`;
+  $('next').disabled = false;
+}));
+
+$('next').addEventListener('click', () => {
+  idx++;
+  if (idx < QUESTIONS.length) render();
+  else showResult();
+});
+
+function showResult() {
+  $('bar').style.width = '100%';
+  document.querySelector('#quiz .card').style.display = 'none';
+  const r = $('result'); r.classList.add('show');
+  $('finalScore').textContent = score + ' / ' + QUESTIONS.length;
+  let msg;
+  if (score === QUESTIONS.length) msg = '滿分！你已經能精準分流 Code 與 Cowork 了 🎉';
+  else if (score >= 7) msg = '很穩！大方向都對，回看答錯的解釋就更清楚。';
+  else msg = '再練一次——口訣：動程式碼用 Code，非程式的多步驟雜活用 Cowork。';
+  $('finalMsg').textContent = msg;
+}
+
+$('retry').addEventListener('click', () => {
+  idx = 0; score = 0;
+  $('result').classList.remove('show');
+  document.querySelector('#quiz .card').style.display = 'block';
+  render();
+});
+
+render();
+</script>
+
+<!-- font-size-control v1 -->
+<div id="fontctl" style="position:fixed;top:12px;right:12px;z-index:99999;display:flex;gap:6px;align-items:center;background:rgba(15,23,42,.9);border:1px solid #334155;border-radius:9px;padding:5px 8px;backdrop-filter:blur(4px);box-shadow:0 2px 10px rgba(0,0,0,.4);">
+  <button type="button" onclick="fontStep(-1)" title="縮小字體" aria-label="縮小字體" style="width:34px;height:32px;border-radius:6px;border:1px solid #334155;background:transparent;color:#e2e8f0;cursor:pointer;font-size:13px;font-weight:700;line-height:1;">A−</button>
+  <button type="button" onclick="fontReset()" title="還原預設字體" aria-label="還原字體" style="height:32px;padding:0 8px;border-radius:6px;border:1px solid #334155;background:transparent;color:#94a3b8;cursor:pointer;font-size:11px;">重設</button>
+  <button type="button" onclick="fontStep(1)" title="放大字體" aria-label="放大字體" style="width:34px;height:32px;border-radius:6px;border:1px solid #334155;background:transparent;color:#e2e8f0;cursor:pointer;font-size:18px;font-weight:700;line-height:1;">A+</button>
+</div>
+<script>
+(function(){
+  var KEY='cowork-practice-fontpx', MIN=12, MAX=28, DEF=16, cur=DEF;
+  function get(){ try{ var v=parseInt(localStorage.getItem(KEY),10); return v||DEF; }catch(e){ return cur; } }
+  function set(px){ cur=px; try{ localStorage.setItem(KEY,px); }catch(e){} document.documentElement.style.fontSize=px+'px'; }
+  window.fontStep=function(d){ var px=get()+d*2; if(px<MIN)px=MIN; if(px>MAX)px=MAX; set(px); };
+  window.fontReset=function(){ set(DEF); };
+  var s=get(); if(s!==DEF) document.documentElement.style.fontSize=s+'px', cur=s;
+})();
+</script>
+
+</body>
+</html>
