@@ -27,12 +27,19 @@
 | **簡報 viewer（194 PNG）** | ✅ HTTP 200 | <https://chenghyang2001.github.io/kindle-32-slides/> |
 | **併入 mermaid-viewer 第 18 tab** | ✅ HTTP 200 | <https://chenghyang2001.github.io/mermaid-viewer/> |
 | NLM artifact 全繁中章節命名 | ✅ | audio 15/15、slide 14/14、video 15/15 completed |
+| 影片 artifact ID 對照表 | ✅ | `.nlm-pipeline/chapter_video_tasks.tsv`（14 支 video ID↔繁中章名） |
+| **13 章互動練習網頁** | ✅ HTTP 200 | <https://chenghyang2001.github.io/kindle-32-practice/> |
+| **練習併入 mermaid-viewer 第 19 tab** | ✅ | 「Kindle 32｜Cowork 練習」（綠色 tab） |
+
+> 2026-07-08 新增：`code/` 目錄放全書 13 章「互動練習網頁」（每章 10 題即時對錯＋解釋＋計分＋接回 Cowork demo），由 12 個並行 subagent 依各章 PDF 產出，總覽入口 `code/index.html`。已發布到 public repo `chenghyang2001/kindle-32-practice` 的 GitHub Pages，並嵌進 mermaid-viewer 第 19 tab。
 
 ### ⏳ 可選待辦（本 repo 開新 session 主要要接的事）
 
-1. **🎬 14 支章節影片對外部署**（最主要待辦）
-   - 現況：影片已在 NLM 內「生成完成 + 繁中命名」，但**還沒下載 mp4、還沒做 video viewer、還沒併進 mermaid-viewer**。
-   - 要做：派 **@小雲** 在 VPS 下載 14 支 mp4 → 做 video viewer 網頁（比照 slide viewer）→ 併進 mermaid-viewer。
+1. **🎬 14 支章節影片對外部署**（進行中，已下載未部署）
+   - 現況（2026-07-08）：@小雲 已在 **VPS 下載 14 支 mp4**（`/home/claude/kindle-32-videos/ch00~ch13.mp4`，720p、約 9 分/支、共 547MB），但使用者當場喊停，**viewer 網頁與對外部署尚未做**。檔案原地保留在 VPS。
+   - 影片 artifact ID 已落檔於 `.nlm-pipeline/chapter_video_tasks.tsv`（不必再重撈）。
+   - 續做：做 video viewer 網頁 → 併進 mermaid-viewer（比照練習頁走 GitHub Pages；**勿嵌 VPS HTTP，會被 HTTPS mermaid-viewer 擋成 mixed content**）。
+   - ⚠️ 決策紀錄：影片 host 選 **GitHub Pages**（單支最大 45.9MB < 100MB 上限），不是 VPS HTTP——因 VPS 是裸 IP 無 HTTPS，嵌不進 mermaid-viewer。
 2. **📊 第13章簡報補生**（次要，可略）
    - 現況：slide tasks 只到第12章（`chapter_slide_tasks.tsv` 缺 ch13）；當初第13章 slide 被 Google 限流。
    - 簡報 viewer 目前 = 第0~12章 + 全書導覽 = 14 張，缺第13章。
@@ -73,18 +80,24 @@
 | 12 | `bb57f13d-6d81-446c-931c-5182e0f7fe30` | 第12章 排程與自動化 |
 | 13 | `3543fd12-3057-47cc-a551-0d766090c1c2` | 第13章 進階自訂與品牌設計 |
 
-> 完整對照另存於 `.nlm-pipeline/chapter_sources.tsv`（source）、`chapter_audio_tasks.tsv`（audio artifact）、`chapter_slide_tasks.tsv`（slide task，僅到第12章）。
-> **影片的 artifact ID 尚未落檔** → 接手時先 `notebooklm artifact list --notebook 7cc07ede... --json` 撈出 video artifact 清單，比對繁中章名建立對照。
+> 完整對照另存於 `.nlm-pipeline/chapter_sources.tsv`（source）、`chapter_audio_tasks.tsv`（audio artifact）、`chapter_slide_tasks.tsv`（slide task，僅到第12章）、`chapter_video_tasks.tsv`（video artifact，14 章全）。
+> ✅ 2026-07-08：影片 artifact ID 已落檔於 `chapter_video_tasks.tsv`，不必再重撈。
 
 ---
 
 ## 五、目錄結構
 
 ```
-kindle-32-claude-cowork/           ← 本 repo 根目錄（已 git init，branch main）
+kindle-32-claude-cowork/           ← 本 repo 根目錄（已 git init，branch main；無 remote）
 ├── HANDOFF.md                     ← 本文件
 ├── README.md                      ← 書籍與 pipeline 說明
-├── .gitignore                     ← 排除 screenshots/、Python 快取、垃圾檔
+├── .gitignore                     ← 排除 screenshots/、PDF/、Python 快取、垃圾檔
+├── code/                          ← 全書 13 章互動練習網頁（2026-07-08 新增）
+│   ├── index.html                 ← 練習總覽入口（13 章卡片，點了開對應練習）
+│   ├── ch01/ … ch13/index.html    ← 各章互動練習（單檔自足、離線可開）
+│   ├── README.md / BUILD-GUIDE.md ← 章節進度表 / subagent 建置規範
+│   └── （已發布至 GitHub Pages repo chenghyang2001/kindle-32-practice）
+├── PDF/                           ← 全書＋分章 PDF 便利複本（.gitignore；正本在 .nlm-pipeline/）
 └── .nlm-pipeline/
     ├── grab_test.py               ← GPB PageDown 抓圖工具（SHA256 唯一性驗證）
     ├── .poll_*.py                 ← NLM 任務輪詢輔助腳本
@@ -93,6 +106,7 @@ kindle-32-claude-cowork/           ← 本 repo 根目錄（已 git init，branc
     ├── chapter_sources.tsv        ← source ID 對照
     ├── chapter_audio_tasks.tsv    ← audio artifact ID 對照
     ├── chapter_slide_tasks.tsv    ← slide task ID 對照（僅到 ch12）
+    ├── chapter_video_tasks.tsv    ← video artifact ID 對照（14 章全，2026-07-08）
     └── screenshots/               ← 402 張原始截圖（.gitignore，可重抓）
 ```
 
@@ -110,5 +124,6 @@ kindle-32-claude-cowork/           ← 本 repo 根目錄（已 git init，branc
 
 ## 七、下一步一句話總結
 
-> 開新 session 後，把「六、VPS 部署現況」+「三、鐵律第 1 條」交給 @小雲：
-> **在 VPS 上下載 14 支章節 mp4 → 做 video viewer 網頁 → 併進 mermaid-viewer。全程 VPS 上做，不本機 scp。**
+> 影片 14 支 mp4 **已在 VPS 下載完成**（`/home/claude/kindle-32-videos/`），剩下的是：
+> **做 video viewer 網頁 → 發布到 GitHub Pages（比照 kindle-32-practice / kindle-32-slides，勿用 VPS HTTP 以免 mixed content）→ 併進 mermaid-viewer（會是第 20 tab）。**
+> 参考已完成的練習頁部署流程（本檔第二節 ✅ 表 + `code/`）。
