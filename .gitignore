@@ -21,3 +21,6 @@ Thumbs.db
 
 # 機器生成的 session 快照（每輪對話自動刷新，不進版本控制）
 .claude/session-state.md
+
+# === PDF 便利複本（正本已在 .nlm-pipeline/ 版控中，PDF/ 只是本機方便取用，不重複入版控）===
+PDF/
