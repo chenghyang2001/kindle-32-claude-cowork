@@ -1,0 +1,20 @@
+# === 大型原始截圖（可從 GPB 重抓的中間產物，160MB，不入版控）===
+.nlm-pipeline/screenshots/
+
+# === Python 快取 ===
+__pycache__/
+*.pyc
+*.pyo
+.ruff_cache/
+.pytest_cache/
+.venv/
+
+# === 當機 / 系統垃圾檔（junk-files-gitignore 規則）===
+*.stackdump
+core
+*.core
+*.dmp
+*~
+*.swp
+.DS_Store
+Thumbs.db
