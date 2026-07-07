@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第0章 AI Agent 的時代 — 互動練習</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --panel2: #172033;
+    --ink: #e2e8f0; --muted: #94a3b8; --line: #334155;
+    --chat: #38bdf8; --coding: #34d399; --computer: #fbbf24; --desktop: #a78bfa;
+    --ok: #22c55e; --bad: #f87171;
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Segoe UI', system-ui, "Microsoft JhengHei", sans-serif;
+    line-height: 1.7; padding: 24px 16px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+
+  header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: .02em; }
+  header .sub { color: var(--muted); margin-top: 4px; font-size: .9rem; }
+  .book { color: var(--desktop); }
+
+  section { margin-top: 28px; }
+  h2 { font-size: 1.1rem; margin-bottom: 12px; border-left: 4px solid var(--desktop);
+       padding-left: 10px; }
+
+  /* 四種 Agent 卡 */
+  .modes { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+  .mode { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+          padding: 14px; }
+  .mode h3 { font-size: .98rem; margin-bottom: 4px; }
+  .mode.chatbot h3 { color: var(--chat); }
+  .mode.coding h3 { color: var(--coding); }
+  .mode.computer h3 { color: var(--computer); }
+  .mode.desktop h3 { color: var(--desktop); }
+  .mode p { font-size: .8rem; color: var(--muted); }
+  .mode .tag { font-size: .7rem; color: var(--ink); opacity: .85; }
+
+  details { background: var(--panel2); border: 1px solid var(--line);
+            border-radius: 10px; padding: 10px 14px; margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .82rem; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  th { background: rgba(167,139,250,.12); }
+  td.center, th.center { text-align: center; }
+  .overflow { overflow-x: auto; }
+
+  /* 練習 */
+  #quiz .card { background: var(--panel); border: 1px solid var(--line);
+                border-radius: 12px; padding: 18px; }
+  .progress { height: 8px; background: var(--panel2); border-radius: 99px;
+              overflow: hidden; margin-bottom: 14px; }
+  .progress > i { display: block; height: 100%; width: 0;
+                  background: linear-gradient(90deg,var(--chat),var(--desktop)); transition: width .3s; }
+  .qmeta { display: flex; justify-content: space-between; font-size: .8rem;
+           color: var(--muted); margin-bottom: 8px; }
+  .scenario { font-size: 1.02rem; font-weight: 600; margin: 6px 0 16px;
+              background: var(--panel2); border-radius: 8px; padding: 14px; }
+  .scenario .quote { color: var(--muted); font-weight: 400; font-size: .85rem; display:block; margin-bottom:6px;}
+  .choices { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+  .choice { padding: 12px 8px; border-radius: 10px; border: 1px solid var(--line);
+            background: transparent; color: var(--ink); font-size: .88rem; font-weight: 700;
+            cursor: pointer; transition: all .15s; }
+  .choice small { display:block; font-weight:400; font-size:.7rem; color:var(--muted); margin-top:2px;}
+  .choice:hover:not(:disabled) { border-color: var(--desktop); background: rgba(167,139,250,.08); }
+  .choice:disabled { cursor: default; opacity: .55; }
+  .choice.correct { border-color: var(--ok); background: rgba(34,197,94,.16); opacity:1; }
+  .choice.wrong { border-color: var(--bad); background: rgba(248,113,113,.16); opacity:1; }
+
+  .feedback { margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+              font-size: .9rem; display: none; }
+  .feedback.show { display: block; }
+  .feedback.good { background: rgba(34,197,94,.12); border: 1px solid var(--ok); }
+  .feedback.bad  { background: rgba(248,113,113,.12); border: 1px solid var(--bad); }
+  .feedback b.ans-chatbot { color: var(--chat); }
+  .feedback b.ans-coding { color: var(--coding); }
+  .feedback b.ans-computer { color: var(--computer); }
+  .feedback b.ans-desktop { color: var(--desktop); }
+
+  .nav { margin-top: 16px; text-align: right; }
+  button.next { background: var(--desktop); color: #1a1030; border: none; font-weight: 700;
+                padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: .95rem; }
+  button.next:disabled { opacity: .4; cursor: default; }
+
+  /* 結果 */
+  #result { display: none; text-align: center; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 12px; padding: 30px 18px; }
+  #result.show { display: block; }
+  #result .score { font-size: 2.4rem; font-weight: 800; color: var(--desktop); }
+  #result .msg { color: var(--muted); margin: 8px 0 18px; }
+  button.retry { background: transparent; color: var(--ink); border: 1px solid var(--line);
+                 padding: 9px 18px; border-radius: 8px; cursor: pointer; }
+
+  .demo { background: var(--panel2); border: 1px dashed var(--desktop); border-radius: 12px;
+          padding: 16px; margin-top: 14px; }
+  .demo code { background: #0b1220; padding: 2px 7px; border-radius: 5px; color: #e9d5ff;
+               font-size: .85rem; }
+  .demo .step { margin: 8px 0; }
+
+  @media (max-width: 900px) {
+    .modes { grid-template-columns: repeat(2,1fr); }
+    .choices { grid-template-columns: repeat(2,1fr); }
+  }
+  @media (max-width: 640px) {
+    .modes { grid-template-columns: 1fr; }
+    .choices { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>第 0 章 · AI Agent 的時代</h1>
+    <div class="sub">互動練習｜出自《<span class="book">Claude Cowork：31 個超好用範例實作</span>》· 胡嘉璽著</div>
+  </header>
+
+  <!-- ── 重點回顧 ── -->
+  <section>
+    <h2>① 先回顧：AI 能力演進的四個階段</h2>
+    <div class="modes">
+      <div class="mode chatbot">
+        <h3>Chatbot</h3>
+        <p class="tag">聊天機器人<br>一問一答</p>
+        <p>你問一句、AI 答一句。不存取檔案、不主動做事，代表產品是 ChatGPT、Claude Chat、Gemini。</p>
+      </div>
+      <div class="mode coding">
+        <h3>Coding Agent</h3>
+        <p class="tag">程式開發代理<br>2023 年起</p>
+        <p>能讀寫程式檔案、執行終端機指令、管理 Git，但世界僅限於「程式碼和終端機」。代表：GitHub Copilot、Cursor、Claude Code。</p>
+      </div>
+      <div class="mode computer">
+        <h3>Computer Agent</h3>
+        <p class="tag">電腦操控代理<br>2024 年底</p>
+        <p>靠「看螢幕截圖 → 決定點哪裡」操作任何 GUI 應用程式，速度慢、容易出錯。代表：Claude Computer Use、Operator。</p>
+      </div>
+      <div class="mode desktop">
+        <h3>Desktop Agent</h3>
+        <p class="tag">桌面代理<br>2025 年，Claude Cowork</p>
+        <p>整合多種互動方式，自主規劃、拆解步驟、存取檔案、排程、跨雲端服務，真的動手完成任務。</p>
+      </div>
+    </div>
+
+    <details>
+      <summary>展開書中的能力矩陣（✓ 原生支援 / △ 有限度支援 / X 不支援）</summary>
+      <div class="overflow">
+      <table>
+        <tr><th>能力</th><th class="center">Chatbot</th><th class="center">Coding Agent</th><th class="center">Computer Agent</th><th class="center">Desktop Agent</th></tr>
+        <tr><td>文字對話</td><td class="center">✓</td><td class="center">✓</td><td class="center">✓</td><td class="center">✓</td></tr>
+        <tr><td>讀寫本機檔案</td><td class="center">X</td><td class="center">✓（程式檔）</td><td class="center">△</td><td class="center">✓（所有檔案）</td></tr>
+        <tr><td>執行程式碼</td><td class="center">X</td><td class="center">✓</td><td class="center">X</td><td class="center">✓</td></tr>
+        <tr><td>操控 GUI 應用</td><td class="center">X</td><td class="center">X</td><td class="center">✓</td><td class="center">✓</td></tr>
+        <tr><td>連接雲端服務</td><td class="center">X</td><td class="center">X</td><td class="center">△</td><td class="center">✓</td></tr>
+        <tr><td>排程自動化</td><td class="center">X</td><td class="center">X</td><td class="center">X</td><td class="center">✓</td></tr>
+        <tr><td>多裝置協作</td><td class="center">X</td><td class="center">X</td><td class="center">X</td><td class="center">✓</td></tr>
+        <tr><td>子任務平行處理</td><td class="center">X</td><td class="center">△</td><td class="center">X</td><td class="center">✓</td></tr>
+        <tr><td>產生專業文件</td><td class="center">X</td><td class="center">X</td><td class="center">△</td><td class="center">✓</td></tr>
+        <tr><td>安全隔離（VM）</td><td class="center">不需要</td><td class="center">△</td><td class="center">X</td><td class="center">✓</td></tr>
+      </table>
+      </div>
+      <p style="margin-top:10px;font-size:.85rem;color:var(--muted)">
+        一句話：<b style="color:var(--chat)">Chatbot 只動嘴</b>、<b style="color:var(--coding)">Coding Agent 只碰程式碼</b>、<b style="color:var(--computer)">Computer Agent 靠截圖操作</b>、<b style="color:var(--desktop)">Desktop Agent 真的動手完成多步驟任務</b>。本書聚焦 Claude Cowork（Desktop Agent）。
+      </p>
+    </details>
+  </section>
+
+  <!-- ── 練習 ── -->
+  <section>
+    <h2>② 動手練習：這個情境屬於哪一種 Agent？</h2>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px">
+      讀情境，點你判斷的 Agent 類型，會立刻告訴你對不對＋為什麼。共 10 題。
+    </p>
+
+    <div id="quiz">
+      <div class="card">
+        <div class="progress"><i id="bar"></i></div>
+        <div class="qmeta"><span id="qnum">第 1 / 10 題</span><span id="score">得分 0</span></div>
+        <div class="scenario" id="scenario"></div>
+        <div class="choices">
+          <button class="choice" data-pick="chatbot">Chatbot<small>聊天</small></button>
+          <button class="choice" data-pick="coding">Coding Agent<small>寫程式</small></button>
+          <button class="choice" data-pick="computer">Computer Agent<small>操控電腦</small></button>
+          <button class="choice" data-pick="desktop">Desktop Agent<small>委派任務</small></button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="nav"><button class="next" id="next" disabled>下一題 →</button></div>
+      </div>
+
+      <div id="result">
+        <div class="score" id="finalScore"></div>
+        <div class="msg" id="finalMsg"></div>
+        <button class="retry" id="retry">再練一次</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 真實 demo ── -->
+  <section>
+    <h2>③ 接回真實操作：到 Cowork 做一次 demo</h2>
+    <div class="demo">
+      <p>光做題不夠，打開 <b>Claude Desktop</b> → 切到 <b class="book">Cowork</b> 分頁，把書中第一個示範任務貼進去實際跑一次，親眼見證 Chatbot 和 Desktop Agent 的根本性差異：</p>
+      <div class="step">1️⃣ 在任務輸入區貼上：<br><code>請幫我在桌面建立一個「Cowork測試」資料夾，裡面放三個檔案：todo.txt（內容是今天的待辦事項範例）、notes.md（內容是會議記錄範例）、expense.csv（內容是本月費用範例，含標題列和五筆資料）。</code></div>
+      <div class="step">2️⃣ 按 <b>Let's go →</b>，觀察右側的 <b>Progress</b> 面板：Claude 會自己拆解成「建立資料夾 → 建立 todo.txt → 建立 notes.md → 建立 expense.csv」四個步驟，並在需要動手前先跳出權限請求（Allow for this task / Allow once / Deny）讓你確認。</div>
+      <div class="step">3️⃣ 全部完成後（Progress 顯示 4 of 4），回到桌面確認真的多了一個「Cowork測試」資料夾、裡面真的有三個內容合理的檔案——這就是「只動嘴」和「真的動手」的差別。</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:8px">⚠️ Cowork 目前是研究預覽版（research preview），每一步涉及檔案操作都會先請你確認權限，放心它不會偷偷動手。</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// 題庫：情境取自書中 0-1（四階段演進）與 0-2（能力矩陣、適用場景）
+const QUESTIONS = [
+  { q: '在 Claude Chat 模式輸入「請用一句話解釋什麼是 AI Agent」，幾秒後 Claude 直接回一段文字，對話就結束了。', a: 'chatbot',
+    why: '一問一答、不存取檔案、不主動做事——書中定義的 Chatbot 典型行為就是「只動嘴不動手」。' },
+  { q: 'GitHub Copilot、Cursor、Claude Code 這類工具能直接在你的開發環境中讀取檔案、修改程式碼、執行終端機指令、管理 Git 分支。', a: 'coding',
+    why: '它們的共同特徵是直接在開發環境動手寫程式並執行，但世界僅限於「程式碼和終端機」，這正是 Coding Agent 的定義與能力邊界。' },
+  { q: '這種代理透過「看螢幕截圖 → 決定點哪裡」的方式操作你的電腦，理論上能像人類一樣操作任何應用程式，但速度慢、容易在複雜介面判斷錯誤。', a: 'computer',
+    why: '書中明確指出 Computer Agent（如 Claude Computer Use）靠反覆截圖與判斷來操作，優點是幾乎無應用程式限制，限制是速度慢、容易出錯、需要持續佔用螢幕。' },
+  { q: '「請幫我在桌面建立一個『Cowork測試』資料夾，裡面放三個檔案：todo.txt、notes.md、expense.csv。」Claude 自己規劃步驟、呼叫工具、寫入內容、最後回報結果。', a: 'desktop',
+    why: '這正是書中第一個 Cowork 示範任務：你只描述想要的結果，Claude 自主完成建立資料夾、寫檔案等多步驟工作，這就是 Desktop Agent 的核心行為。' },
+  { q: '每天早上 8 點自動幫我彙整昨天的重要新聞摘要，不需要我手動觸發。', a: 'desktop',
+    why: '能力矩陣中「排程自動化」只有 Desktop Agent 打勾，Chatbot、Coding Agent、Computer Agent 在這一項全部是 X。' },
+  { q: '分析上百筆銷售資料，產生一份含圖表的 Excel 報表和 PowerPoint 簡報。', a: 'desktop',
+    why: '能力矩陣中「產生專業文件」Chatbot 是 X、Computer Agent 只是 △（有限度支援），只有 Desktop Agent 是 ✓。' },
+  { q: '我需要操作一個沒有 API、介面很舊的桌面軟體，並且要盡量精確模擬人類滑鼠點擊的操作方式。', a: 'computer',
+    why: '書中列出 Computer Agent 最適合的場景正是「操作沒有 API 的舊式應用程式」與「需要精確模擬人類操作的場景」。' },
+  { q: '重構現有的程式碼庫、修復多個 bug，並補齊測試和技術文件。', a: 'coding',
+    why: '從零建立軟體專案、重構程式碼、除錯、撰寫測試和文件，都是書中列出 Coding Agent 最適合的場景。' },
+  { q: '幫我想 5 個行銷活動的點子，並解釋「複利」是怎麼運作的。', a: 'chatbot',
+    why: '腦力激盪和知識性問答屬於單次的一問一答，Chatbot 就足夠勝任，不需要 AI 自主規劃或存取檔案。' },
+  { q: '這項任務需要同時連接 Gmail、Google Drive、Calendar 等多個雲端服務，並平行處理好幾個子任務才能完成。', a: 'desktop',
+    why: '能力矩陣中「連接雲端服務」與「子任務平行處理」只有 Desktop Agent 是滿分 ✓，Computer Agent 頂多 △，其餘皆為 X。' },
+];
+
+const LABEL = { chatbot: 'Chatbot（聊天）', coding: 'Coding Agent（寫程式）', computer: 'Computer Agent（操控電腦）', desktop: 'Desktop Agent（委派任務）' };
+let idx = 0, score = 0, answered = false;
+
+const $ = id => document.getElementById(id);
+const scenarioEl = $('scenario'), feedbackEl = $('feedback');
+const choices = [...document.querySelectorAll('.choice')];
+
+function render() {
+  answered = false;
+  const item = QUESTIONS[idx];
+  scenarioEl.innerHTML = '<span class="quote">情境：</span>' + item.q;
+  $('qnum').textContent = `第 ${idx + 1} / ${QUESTIONS.length} 題`;
+  $('score').textContent = `得分 ${score}`;
+  $('bar').style.width = (idx / QUESTIONS.length * 100) + '%';
+  feedbackEl.className = 'feedback';
+  feedbackEl.innerHTML = '';
+  $('next').disabled = true;
+  choices.forEach(c => { c.disabled = false; c.className = 'choice'; });
+}
+
+choices.forEach(c => c.addEventListener('click', () => {
+  if (answered) return;
+  answered = true;
+  const pick = c.dataset.pick;
+  const item = QUESTIONS[idx];
+  const correct = pick === item.a;
+  if (correct) score++;
+  choices.forEach(x => {
+    x.disabled = true;
+    if (x.dataset.pick === item.a) x.classList.add('correct');
+    else if (x.dataset.pick === pick) x.classList.add('wrong');
+  });
+  feedbackEl.className = 'feedback show ' + (correct ? 'good' : 'bad');
+  feedbackEl.innerHTML =
+    (correct ? '✅ 答對了！' : '❌ 再想想～') +
+    ' 正確答案是 <b class="ans-' + item.a + '">' + LABEL[item.a] + '</b>。<br>' + item.why;
+  $('score').textContent = `得分 ${score}`;
+  $('next').disabled = false;
+}));
+
+$('next').addEventListener('click', () => {
+  idx++;
+  if (idx < QUESTIONS.length) { render(); }
+  else { showResult(); }
+});
+
+function showResult() {
+  $('bar').style.width = '100%';
+  document.querySelector('#quiz .card').style.display = 'none';
+  const r = $('result'); r.classList.add('show');
+  $('finalScore').textContent = score + ' / ' + QUESTIONS.length;
+  let msg;
+  if (score === QUESTIONS.length) msg = '滿分！你已經完全分得清 Chatbot / Coding Agent / Computer Agent / Desktop Agent 四種代理了 🎉';
+  else if (score >= 7) msg = '很不錯！大方向都抓對了，回頭看看答錯那幾題的解釋就更穩。';
+  else msg = '再練一次吧——重點口訣：一問一答是 Chatbot、只碰程式碼是 Coding Agent、靠截圖操作是 Computer Agent、真的動手完成多步驟是 Desktop Agent。';
+  $('finalMsg').textContent = msg;
+}
+
+$('retry').addEventListener('click', () => {
+  idx = 0; score = 0;
+  $('result').classList.remove('show');
+  document.querySelector('#quiz .card').style.display = 'block';
+  render();
+});
+
+render();
+</script>
+<!-- font-size-control v1 -->
+<div id="fontctl" style="position:fixed;top:12px;right:12px;z-index:99999;display:flex;gap:6px;align-items:center;background:rgba(15,23,42,.9);border:1px solid #334155;border-radius:9px;padding:5px 8px;backdrop-filter:blur(4px);box-shadow:0 2px 10px rgba(0,0,0,.4);">
+  <button type="button" onclick="fontStep(-1)" title="縮小字體" aria-label="縮小字體" style="width:34px;height:32px;border-radius:6px;border:1px solid #334155;background:transparent;color:#e2e8f0;cursor:pointer;font-size:13px;font-weight:700;line-height:1;">A−</button>
+  <button type="button" onclick="fontReset()" title="還原預設字體" aria-label="還原字體" style="height:32px;padding:0 8px;border-radius:6px;border:1px solid #334155;background:transparent;color:#94a3b8;cursor:pointer;font-size:11px;">重設</button>
+  <button type="button" onclick="fontStep(1)" title="放大字體" aria-label="放大字體" style="width:34px;height:32px;border-radius:6px;border:1px solid #334155;background:transparent;color:#e2e8f0;cursor:pointer;font-size:18px;font-weight:700;line-height:1;">A+</button>
+</div>
+<script>
+(function(){
+  var KEY='cowork-practice-fontpx', MIN=12, MAX=28, DEF=16, cur=DEF;
+  function get(){ try{ var v=parseInt(localStorage.getItem(KEY),10); return v||DEF; }catch(e){ return cur; } }
+  function set(px){ cur=px; try{ localStorage.setItem(KEY,px); }catch(e){} document.documentElement.style.fontSize=px+'px'; }
+  window.fontStep=function(d){ var px=get()+d*2; if(px<MIN)px=MIN; if(px>MAX)px=MAX; set(px); };
+  window.fontReset=function(){ set(DEF); };
+  var s=get(); if(s!==DEF) document.documentElement.style.fontSize=s+'px', cur=s;
+})();
+</script>
+
+</body>
+</html>

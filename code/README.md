@@ -13,6 +13,7 @@
 
 | 章 | 主題 | 練習類型（10 題／章） | 狀態 |
 | ---- | ------ | -------- | ------ |
+| ch00 | AI Agent 的時代（導論） | 四階段 Agent 演進（Chatbot/Coding/Computer/Desktop）分類 | ✅ |
 | ch01 | 認識 Claude Cowork | 三種模式 Chat/Cowork/Code 情境分類 | ✅ |
 | ch02 | 設定你的 Cowork | 「這個需求該怎麼設定」情境判斷 | ✅ |
 | ch03 | Cowork 的日常操作 | 六大功能（Task/Projects/Scheduled/Dispatch/Ideas/Search）配對 | ✅ |
@@ -29,7 +30,7 @@
 
 | 加碼 | Code vs Cowork 任務分流 | 速查表 + 「該用 Code 還是 Cowork」二選一（`bonus/`） | ✅ |
 
-> 全 13 章 + 1 加碼綜合完成。ch00（AI Agent 的時代，導論章）尚未製作，需要再補可再說。
+> 導論 ch00 + 全 13 章 + 1 加碼綜合，共 15 張練習全數完成。
 
 ## 設計原則
 
