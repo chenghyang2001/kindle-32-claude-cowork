@@ -24,7 +24,7 @@
 
 - 調出既有 `code/bonus/index.html`（第14張加碼練習「Code vs Cowork 任務分流」）。
 - 針對使用者更尖銳的提問（「哪些工作**一定**只能用 Cowork、Code 根本做不到」）產出誠實分析：對已搭好 MCP+VPS+cron+gws 的重度 CLI 使用者，硬邊界不在「做什麼」而在「在哪跑/用什麼裝置/給誰用」。
-- 把分析寫成來源檔 → 建新 NotebookLM notebook → 觸發語音/簡報/影片三摘要（背景下載中）。
+- 把分析寫成來源檔 → 建新 NotebookLM notebook → 生成語音/簡報/影片三摘要並已下載完成（共 70MB）。
 
 ### Google Calendar
 
@@ -43,11 +43,11 @@
 | 檔案 | 說明 |
 | --- | --- |
 | GitHub repo（public） | <https://github.com/chenghyang2001/kindle-32-claude-cowork> |
-| `.gitignore`（已 commit `19961c3` 之前數個 commit） | 忽略整個 `.nlm-pipeline/` |
+| `.gitignore`（於「移除 .nlm-pipeline/ 版控」commit 擴大） | 忽略整個 `.nlm-pipeline/` |
 | `README.md` | 補 repo 連結 + 目錄結構改為實際內容 |
 | `scratchpad/claude-code-vs-cowork.md` | NLM 來源檔（Code vs Cowork 硬邊界分析） |
 | NotebookLM notebook `9258a069-6b24-4c1f-a5f5-7bb8c850c79a` | 三摘要來源 |
-| `scratchpad/cowork-artifacts/`（背景下載中） | cowork-audio.m4a / slide-deck.pptx / video.mp4 |
+| `scratchpad/cowork-artifacts/`（已下載完成 70MB） | cowork-audio.m4a(39M) / slide-deck.pptx(4M) / video.mp4(27M) |
 | Calendar event `e17oamqk805pvgs4tp1371q7hg` | 停車費循環提醒 |
 
 ## HANDOFF（下次 session 優先處理）
