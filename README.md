@@ -9,16 +9,16 @@
 ## 目錄結構
 
 ```
-.nlm-pipeline/
-├── grab_test.py              # GPB PageDown 抓圖工具（SHA256 唯一性驗證，防 focus-trap）
-├── claude-cowork.pdf         # 全書合併 PDF（402 頁 / 62MB）
-├── chapters/                 # ch00.pdf ~ ch13.pdf（14 章，各為 NLM 獨立 source）
-├── chapter_sources.tsv       # 14 章 NotebookLM source ID 對照
-├── chapter_audio_tasks.tsv   # 14 章語音 artifact ID 對照
-├── chapter_slide_tasks.tsv   # 簡報 task ID 對照
-├── screenshots/              # 402 張原始截圖（.gitignore，可重抓）
-└── .poll_*.py                # NLM 任務輪詢輔助腳本
+code/                         # 各章互動練習頁（部署至 GitHub Pages）
+├── index.html                # 練習總覽入口
+├── ch00/ ~ ch13/index.html   # 14 章 + bonus 練習頁
+├── BUILD-GUIDE.md            # 練習頁建置說明
+└── README.md
+HANDOFF.md                    # 跨 session 交接狀態
+summary-02-sessions/          # 各 session 收工 summary
 ```
+
+> **本機專屬（不隨 repo 發佈）**：NLM pipeline 的中間產物放在 `.nlm-pipeline/`（已列入 `.gitignore`，僅存在於本機工作目錄），內含全書合併 PDF、`chapters/` 各章 PDF、`grab_test.py` 抓圖工具、`chapter_*.tsv` 對照表與 `.poll_*.py` 輪詢腳本。這些皆為可重建產物，且含書籍原文，故不進版控。
 
 ## 產出（已上線，Session 274 完成）
 
@@ -33,6 +33,8 @@
 - **可選待辦**：14 支章節影片已於 NLM 內生成＋命名，尚未下載 mp4 對外部署。
 
 ## 抓圖工具用法
+
+> `grab_test.py` 位於本機 `.nlm-pipeline/`（不隨 repo 發佈,見上方說明）。
 
 ```bash
 cd .nlm-pipeline
