@@ -1,5 +1,7 @@
 # Kindle #32 —《Claude Cowork：31個超好用範例實作》NLM Pipeline
 
+> Repo：<https://github.com/chenghyang2001/kindle-32-claude-cowork>
+
 胡嘉璽 著，深智數位（ISBN 978-626-7889-35-0），Google Play Books 共 362 頁。
 
 從 GPB 連續捲動抓圖 → 合併 PDF → 依章節切分 → NotebookLM 每章生成語音／影片／簡報 → VPS m3u + GitHub Pages 部署的完整資料與工具。
