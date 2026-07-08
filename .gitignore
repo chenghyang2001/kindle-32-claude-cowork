@@ -1,5 +1,5 @@
-# === 大型原始截圖（可從 GPB 重抓的中間產物，160MB，不入版控）===
-.nlm-pipeline/screenshots/
+# === NLM pipeline 中間產物（書籍全文/章節 PDF + 截圖 + poll 腳本，可重建，且含書籍原文不宜公開）===
+.nlm-pipeline/
 
 # === Python 快取 ===
 __pycache__/
@@ -22,5 +22,5 @@ Thumbs.db
 # 機器生成的 session 快照（每輪對話自動刷新，不進版本控制）
 .claude/session-state.md
 
-# === PDF 便利複本（正本已在 .nlm-pipeline/ 版控中，PDF/ 只是本機方便取用，不重複入版控）===
+# === PDF 便利複本（本機方便取用，不入版控；書籍 PDF 皆為可重建的本機產物）===
 PDF/
